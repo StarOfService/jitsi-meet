@@ -1,18 +1,10 @@
 // @flow
 
 import React, { Component } from "react";
-import {
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    View,
-    TouchableHighlight,
-    TouchableOpacity,
-} from "react-native";
-import LinearGradient from "react-native-linear-gradient";
+import { Text, View, TouchableOpacity } from "react-native";
 import { Icon, IconBack, IconCameraToggle } from "../../../base/icons";
-import { AbstractButton } from "../../../base/toolbox";
 
+import { toggleCameraFacingMode } from "../../../base/media";
 import { getConferenceName } from "../../../base/conference";
 import { getFeatureFlag, MEETING_NAME_ENABLED } from "../../../base/flags";
 import { connect } from "../../../base/redux";
@@ -55,16 +47,6 @@ class NavigationBar extends Component<Props> {
         }
 
         return [
-            // <LinearGradient
-            //     colors={NAVBAR_GRADIENT_COLORS}
-            //     key={1}
-            //     pointerEvents="none"
-            //     style={styles.gradient}
-            // >
-            //     <SafeAreaView>
-            //         <View style={styles.gradientStretchTop} />
-            //     </SafeAreaView>
-            // </LinearGradient>,
             <View key={2} pointerEvents="box-none" style={styles.navBarWrapper}>
                 <PictureInPictureButton styles={styles.navBarButton} />
                 <View pointerEvents="box-none" style={styles.roomNameWrapper}>
@@ -81,7 +63,7 @@ class NavigationBar extends Component<Props> {
                     <ConferenceTimer />
                 </View>
                 <BackButton />
-                <SwitchCamButton />
+                <SwitchCamButton dispatch={this.props.dispatch} />
             </View>,
         ];
     }
@@ -110,11 +92,11 @@ function BackButton() {
     );
 }
 
-function SwitchCamButton() {
+function SwitchCamButton(props) {
     return (
         <TouchableOpacity
             onPress={function () {
-                console.log("switchCameraClick!!!!:::");
+                props.dispatch(toggleCameraFacingMode());
             }}
             style={{
                 alignItems: "center",
