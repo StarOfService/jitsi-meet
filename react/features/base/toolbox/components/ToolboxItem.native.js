@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { Text, TouchableHighlight, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 import { Icon } from '../../icons';
 
@@ -23,6 +23,7 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
 
         return (
             <Icon
+                color={'#141C1E'}
                 src = { this.props.icon }
                 style = { styles && styles.iconStyle } />
         );
@@ -71,7 +72,7 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
         }
 
         return (
-            <TouchableHighlight
+            <TouchableOpacity
                 accessibilityLabel = { this.accessibilityLabel }
                 accessibilityRole = 'button'
                 accessibilityState = {{ 'selected': toggled }}
@@ -80,7 +81,7 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
                 style = { style }
                 underlayColor = { styles && styles.underlayColor } >
                 { children }
-            </TouchableHighlight>
+            </TouchableOpacity>
         );
     }
 }

@@ -124,7 +124,8 @@ ColorSchemeRegistry.register('Toolbox', {
         iconStyle: whiteToolbarButtonIcon,
         style: {
             ...toolbarButton,
-            backgroundColor: schemeColor('hangup')
+            backgroundColor: schemeColor('hangup'),
+            transform: [{ rotate: '135deg'}]
         },
         underlayColor: ColorPalette.buttonUnderlay
     },

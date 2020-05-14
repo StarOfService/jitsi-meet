@@ -23,7 +23,8 @@ export default {
         flexDirection: 'row',
         flexGrow: 0,
         justifyContent: 'flex-end',
-        height: FILMSTRIP_SIZE
+        height: FILMSTRIP_SIZE,
+        marginBottom: 13
     },
 
     /**
@@ -46,11 +47,7 @@ export default {
      * Container of the {@link LocalThumbnail}.
      */
     localThumbnail: {
-        alignContent: 'stretch',
-        alignSelf: 'stretch',
-        aspectRatio: 1,
-        flexShrink: 0,
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
 
     moderatorIndicatorContainer: {
@@ -63,6 +60,7 @@ export default {
      * The style of the scrollview containing the remote thumbnails.
      */
     scrollView: {
+        paddingRight: 20,
         flexGrow: 0
     },
 
@@ -73,14 +71,11 @@ export default {
     thumbnail: {
         alignItems: 'stretch',
         backgroundColor: ColorPalette.appBackground,
-        borderColor: '#424242',
-        borderRadius: 3,
-        borderStyle: 'solid',
-        borderWidth: 1,
+        borderRadius: 5,
         flex: 1,
         height: 80,
         justifyContent: 'center',
-        margin: 2,
+        marginHorizontal: 4,
         overflow: 'hidden',
         position: 'relative',
         width: 80
@@ -94,7 +89,7 @@ export default {
         bottom: 4,
         flex: 1,
         flexDirection: 'row',
-        left: 4,
+        right: 4,
         position: 'absolute'
     },
 

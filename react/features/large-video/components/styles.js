@@ -16,7 +16,7 @@ ColorSchemeRegistry.register('LargeVideo', {
      * Large video container style.
      */
     largeVideo: {
-        ...StyleSheet.absoluteFillObject,
+        // ...StyleSheet.absoluteFillObject,
         alignItems: 'stretch',
         backgroundColor: schemeColor('background'),
         flex: 1,

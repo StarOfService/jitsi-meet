@@ -293,7 +293,7 @@ class Conference extends AbstractConference<Props, *> {
                     pointerEvents = 'box-none'
                     style = { styles.toolboxAndFilmstripContainer }>
 
-                    { showGradient && <LinearGradient
+                    {/* { showGradient && <LinearGradient
                         colors = { NAVBAR_GRADIENT_COLORS }
                         end = {{
                             x: 0.0,
@@ -307,20 +307,15 @@ class Conference extends AbstractConference<Props, *> {
                         style = { [
                             styles.bottomGradient,
                             applyGradientStretching ? styles.gradientStretchBottom : undefined
-                        ] } />}
+                        ] } />} */}
 
                     <Labels />
 
                     <Captions onPress = { this._onClick } />
 
-                    { _shouldDisplayTileView || <DisplayNameLabel participantId = { _largeVideoParticipantId } /> }
+                    {/* { _shouldDisplayTileView || <DisplayNameLabel participantId = { _largeVideoParticipantId } /> } */}
 
-                    <LonelyMeetingExperience />
-
-                    {/*
-                      * The Toolbox is in a stacking layer below the Filmstrip.
-                      */}
-                    <Toolbox />
+                    {/* <LonelyMeetingExperience /> */}
 
                     {/*
                       * The Filmstrip is in a stacking layer above the
@@ -330,8 +325,13 @@ class Conference extends AbstractConference<Props, *> {
                       * React Components depict the videos of the conference's
                       * participants.
                       */
-                        _shouldDisplayTileView ? undefined : <Filmstrip />
+                     _shouldDisplayTileView ? undefined : <Filmstrip />
                     }
+
+                    {/*
+                      * The Toolbox is in a stacking layer below the Filmstrip.
+                      */}
+                    <Toolbox />
                 </SafeAreaView>
 
                 <SafeAreaView
@@ -341,7 +341,7 @@ class Conference extends AbstractConference<Props, *> {
                     { this._renderNotificationsContainer() }
                 </SafeAreaView>
 
-                <TestConnectionInfo />
+                {/* <TestConnectionInfo /> */}
 
                 { this._renderConferenceNotification() }
 

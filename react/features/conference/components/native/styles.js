@@ -130,14 +130,21 @@ export default {
 
     roomTimer: {
         color: ColorPalette.white,
-        fontSize: 15,
-        opacity: 0.6
+        fontSize: 14,
+        lineHeight: 22,
+        marginHorizontal: 10,
     },
 
     roomName: {
         color: ColorPalette.white,
-        fontSize: 17,
-        fontWeight: '400'
+        fontSize: 16,
+        fontWeight: 'bold',
+        textShadowColor: 'rgba(0,0,0,0.5)',
+        textShadowOffset: {
+            height: 0.5,
+            width: 0.5
+        },
+        textShadowRadius: 1
     },
 
     roomNameWrapper: {
@@ -145,8 +152,21 @@ export default {
         alignItems: 'center',
         left: 0,
         paddingHorizontal: 48,
+        paddingTop: 5,
         position: 'absolute',
         right: 0
+    },
+
+    serviceName: {
+        color: ColorPalette.white,
+        fontSize: 14,
+        marginTop: 2,
+        textShadowColor: 'rgba(0,0,0,0.5)',
+        textShadowOffset: {
+            height: 0.5,
+            width: 0.5
+        },
+        textShadowRadius: 1
     },
 
     /**
