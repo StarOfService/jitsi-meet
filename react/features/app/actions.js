@@ -96,9 +96,9 @@ export function appNavigate(uri: ?string) {
         let config;
 
         // Avoid (re)loading the config when there is no room.
-        if (!room) {
+        // if (!room) {
             config = restoreConfig(baseURL);
-        }
+        // }
 
         if (!config) {
             try {
@@ -129,6 +129,7 @@ export function appNavigate(uri: ?string) {
 
         dispatch(setLocationURL(locationURL));
         dispatch(setConfig(config));
+        dispatch(storeConfig(baseURL, config));
         dispatch(setRoom(room));
 
         // FIXME: unify with web, currently the connection and track creation happens in conference.js.

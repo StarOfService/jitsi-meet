@@ -43,6 +43,7 @@ static NSString *const WelcomePageEnabledFeatureFlag = @"welcomepage.enabled";
         _room = nil;
         _subject = nil;
         _token = nil;
+        _serviceName = nil;
 
         _colorScheme = nil;
         _featureFlags = [[NSMutableDictionary alloc] init];
@@ -53,7 +54,7 @@ static NSString *const WelcomePageEnabledFeatureFlag = @"welcomepage.enabled";
 
         _userInfo = nil;
     }
-    
+
     return self;
 }
 
@@ -158,6 +159,7 @@ static NSString *const WelcomePageEnabledFeatureFlag = @"welcomepage.enabled";
         _room = builder.room;
         _subject = builder.subject;
         _token = builder.token;
+        _serviceName = builder.serviceName;
 
         _colorScheme = builder.colorScheme;
 
@@ -204,6 +206,9 @@ static NSString *const WelcomePageEnabledFeatureFlag = @"welcomepage.enabled";
     }
     if (_subject != nil) {
         config[@"subject"] = self.subject;
+    }
+    if(_serviceName != nil) {
+        config[@"serviceName"] = self.serviceName;
     }
 
     NSMutableDictionary *urlProps = [[NSMutableDictionary alloc] init];

@@ -37,6 +37,7 @@ export function createLocalTrack(type: string, deviceId: string) {
  * otherwise.
  */
 export function isAnalyticsEnabled(stateful: Function | Object) {
+    return false
     const { disableThirdPartyRequests, analytics = {} } = toState(stateful)['features/base/config'];
 
     return !(disableThirdPartyRequests || analytics.disabled);

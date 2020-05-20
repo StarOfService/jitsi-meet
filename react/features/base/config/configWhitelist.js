@@ -144,6 +144,7 @@ export default [
     'startVideoMuted',
     'startWithAudioMuted',
     'startWithVideoMuted',
+    'serviceName',
     'stereo',
     'subject',
     'testing',

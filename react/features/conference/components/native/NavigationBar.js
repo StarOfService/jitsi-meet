@@ -24,6 +24,7 @@ type Props = {
      * Whether displaying the current meeting name is enabled or not.
      */
     _meetingNameEnabled: boolean,
+    _serviceName: String,
 
     /**
      * True if the navigation bar should be visible.
@@ -56,7 +57,7 @@ class NavigationBar extends Component<Props> {
                                 {this.props._meetingName}
                             </Text>
                             <Text numberOfLines={1} style={styles.serviceName}>
-                                Service Name
+                                {this.props._serviceName}
                             </Text>
                         </>
                     )}
@@ -124,6 +125,7 @@ function SwitchCamButton(props) {
  */
 function _mapStateToProps(state) {
     return {
+        _serviceName: state['features/base/config'].serviceName || '',
         _meetingName: getConferenceName(state),
         _meetingNameEnabled: getFeatureFlag(state, MEETING_NAME_ENABLED, true),
         _visible: isToolboxVisible(state),
