@@ -76,19 +76,22 @@ function BackButton() {
             onPress={function () {
                 console.log("Back button clicked");
             }}
-            style={{
-                backgroundColor: "#F9F9F9",
-                borderRadius: 20,
-                height: 40,
-                position: "absolute",
+            style={[Button, {
                 left: 16,
                 top: 0,
                 justifyContent: "center",
                 width: 40,
-                zIndex: 10,
-            }}
+            }]}
         >
-            <Icon src={IconBack} size={20} style={{ marginLeft: 8 }} />
+            <View
+                style={ButtonBgView}
+            />
+            <Icon
+                color={"#FFF"}
+                src={IconBack}
+                size={20}
+                style={[IconStyles, {marginLeft: 8}]}
+            />
         </TouchableOpacity>
     );
 }
@@ -99,9 +102,8 @@ function SwitchCamButton(props) {
             onPress={function () {
                 props.dispatch(toggleCameraFacingMode());
             }}
-            style={{
+            style={[Button, {
                 alignItems: "center",
-                backgroundColor: "#F9F9F9",
                 borderRadius: 20,
                 height: 40,
                 position: "absolute",
@@ -110,12 +112,45 @@ function SwitchCamButton(props) {
                 justifyContent: "center",
                 width: 40,
                 zIndex: 10,
-            }}
+            }]}
         >
-            <Icon src={IconCameraToggle} size={20} />
+            <View
+                style={ButtonBgView}
+            />
+            <Icon src={IconCameraToggle} size={20} style={IconStyles} />
         </TouchableOpacity>
     );
 }
+
+const Button = {
+    borderRadius: 20,
+    height: 40,
+    position: "absolute",
+    justifyContent: "center",
+    width: 40,
+    zIndex: 10,
+}
+
+const ButtonBgView = {
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    position: "absolute",
+    opacity: 0.4,
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+}
+
+const IconStyles = {
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 1,
+        height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+};
 
 /**
  * Maps part of the Redux store to the props of this component.
@@ -125,7 +160,7 @@ function SwitchCamButton(props) {
  */
 function _mapStateToProps(state) {
     return {
-        _serviceName: state['features/base/config'].serviceName || '',
+        _serviceName: state["features/base/config"].serviceName || "",
         _meetingName: getConferenceName(state),
         _meetingNameEnabled: getFeatureFlag(state, MEETING_NAME_ENABLED, true),
         _visible: isToolboxVisible(state),

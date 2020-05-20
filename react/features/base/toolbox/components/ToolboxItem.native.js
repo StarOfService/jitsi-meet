@@ -1,12 +1,12 @@
 // @flow
 
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
-import { Icon } from '../../icons';
+import { Icon } from "../../icons";
 
-import AbstractToolboxItem from './AbstractToolboxItem';
-import type { Props } from './AbstractToolboxItem';
+import AbstractToolboxItem from "./AbstractToolboxItem";
+import type { Props } from "./AbstractToolboxItem";
 
 /**
  * Native implementation of {@code AbstractToolboxItem}.
@@ -23,9 +23,21 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
 
         return (
             <Icon
-                color={'#141C1E'}
-                src = { this.props.icon }
-                style = { styles && styles.iconStyle } />
+                color={"#FFF"}
+                src={this.props.icon}
+                style={[
+                    styles && styles.iconStyle,
+                    {
+                        shadowColor: "#000",
+                        shadowOffset: {
+                            width: 1,
+                            height: 1,
+                        },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 1,
+                    },
+                ]}
+            />
         );
     }
 
@@ -43,7 +55,7 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
             onClick,
             showLabel,
             styles,
-            toggled
+            toggled,
         } = this.props;
 
         let children = this._renderIcon();
@@ -57,12 +69,12 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
             // show both the icon and the label, then these two need to be
             // wrapped in a View.
             children = (
-                <View style = { style }>
-                    { children }
-                    <Text style = { styles && styles.labelStyle }>
-                        { this.label }
+                <View style={style}>
+                    {children}
+                    <Text style={styles && styles.labelStyle}>
+                        {this.label}
                     </Text>
-                    { elementAfter }
+                    {elementAfter}
                 </View>
             );
 
@@ -73,14 +85,27 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
 
         return (
             <TouchableOpacity
-                accessibilityLabel = { this.accessibilityLabel }
-                accessibilityRole = 'button'
-                accessibilityState = {{ 'selected': toggled }}
-                disabled = { disabled }
-                onPress = { onClick }
-                style = { style }
-                underlayColor = { styles && styles.underlayColor } >
-                { children }
+                accessibilityLabel={this.accessibilityLabel}
+                accessibilityRole="button"
+                accessibilityState={{ selected: toggled }}
+                disabled={disabled}
+                onPress={onClick}
+                style={[style, { backgroundColor: "transparent" }]}
+            >
+                <View
+                    style={{
+                        backgroundColor: "#FFF",
+                        borderRadius: 25,
+                        position: "absolute",
+                        opacity: 0.4,
+                        top: 0,
+                        bottom: 0,
+                        right: 0,
+                        left: 0,
+                    }}
+                />
+
+                {children}
             </TouchableOpacity>
         );
     }
