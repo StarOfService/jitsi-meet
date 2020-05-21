@@ -94,10 +94,10 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
             >
                 <View
                     style={{
-                        backgroundColor: "#FFF",
+                        backgroundColor: style.backgroundColor,
                         borderRadius: 25,
                         position: "absolute",
-                        opacity: 0.4,
+                        opacity: style.backgroundColor === '#F8644A' ? 1 : 0.4,
                         top: 0,
                         bottom: 0,
                         right: 0,
