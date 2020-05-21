@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import { Icon, IconBack, IconCameraToggle } from "../../../base/icons";
 
+import { appNavigate } from '../../../app';
 import { toggleCameraFacingMode } from "../../../base/media";
 import { getConferenceName } from "../../../base/conference";
 import { getFeatureFlag, MEETING_NAME_ENABLED } from "../../../base/flags";
@@ -63,18 +64,18 @@ class NavigationBar extends Component<Props> {
                     )}
                     <ConferenceTimer />
                 </View>
-                <BackButton />
+                <BackButton dispatch={this.props.dispatch}/>
                 <SwitchCamButton dispatch={this.props.dispatch} />
             </View>,
         ];
     }
 }
 
-function BackButton() {
+function BackButton(props) {
     return (
         <TouchableOpacity
             onPress={function () {
-                console.log("Back button clicked");
+                props.dispatch(appNavigate(undefined));
             }}
             style={[Button, {
                 left: 16,
