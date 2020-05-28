@@ -131,10 +131,10 @@ class OverflowMenu extends PureComponent<Props, State> {
                 <RaiseHandButton { ...buttonProps } />
                 <MoreOptionsButton { ...moreOptionsButtonProps } />
                 <Collapsible collapsed = { !showMore }>
-                    <ToggleCameraButton { ...buttonProps } />
+                    {/* <ToggleCameraButton { ...buttonProps } /> */}
                     <TileViewButton { ...buttonProps } />
                     <RecordButton { ...buttonProps } />
-                    <LiveStreamButton { ...buttonProps } />
+                    {/* <LiveStreamButton { ...buttonProps } /> */}
                     <RoomLockButton { ...buttonProps } />
                     <ClosedCaptionButton { ...buttonProps } />
                     <SharedDocumentButton { ...buttonProps } />
@@ -234,6 +234,7 @@ class OverflowMenu extends PureComponent<Props, State> {
  * @returns {Props}
  */
 function _mapStateToProps(state) {
+    console.log('!!!!', ColorSchemeRegistry.get(state, 'BottomSheet'))
     return {
         _bottomSheetStyles: ColorSchemeRegistry.get(state, 'BottomSheet'),
         _isOpen: isDialogOpen(state, OverflowMenu_)

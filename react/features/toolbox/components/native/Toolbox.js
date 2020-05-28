@@ -97,6 +97,10 @@ class Toolbox extends PureComponent<Props> {
             toggledButtonStyles,
         } = _styles;
 
+        let optionsBtnStyles = buttonStylesBorderless;
+        optionsBtnStyles.style.marginHorizontal = 5;
+        optionsBtnStyles.style.width = 20
+
         return (
             <View
                 accessibilityRole="toolbar"
@@ -115,9 +119,9 @@ class Toolbox extends PureComponent<Props> {
                     toggledStyles={toggledButtonStyles}
                 />
                 <HangupButton styles={hangupButtonStyles} />
-                {/* <OverflowMenuButton
+                <OverflowMenuButton
                     styles = { buttonStylesBorderless }
-                    toggledStyles = { toggledButtonStyles } /> */}
+                    toggledStyles = { toggledButtonStyles } />
             </View>
         );
     }

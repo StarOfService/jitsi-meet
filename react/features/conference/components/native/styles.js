@@ -125,6 +125,7 @@ export default {
         flexDirection: 'row',
         height: 44,
         justifyContent: 'space-between',
+        marginTop: 10,
         paddingHorizontal: 14
     },
 

@@ -82,7 +82,6 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
             // (above).
             style = undefined;
         }
-
         return (
             <TouchableOpacity
                 accessibilityLabel={this.accessibilityLabel}
@@ -94,10 +93,10 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
             >
                 <View
                     style={{
-                        backgroundColor: style.backgroundColor,
+                        backgroundColor: style?.backgroundColor || 'transparent',
                         borderRadius: 25,
                         position: "absolute",
-                        opacity: style.backgroundColor === '#F8644A' ? 1 : 0.4,
+                        opacity: style?.backgroundColor === '#F8644A' ? 1 : 0.4,
                         top: 0,
                         bottom: 0,
                         right: 0,
