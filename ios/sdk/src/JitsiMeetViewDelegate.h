@@ -18,6 +18,8 @@
 
 @optional
 
+- (void)conferenceGoToPictureInPicture:(NSDictionary *)data;
+
 /**
  * Called when a conference was joined.
  *

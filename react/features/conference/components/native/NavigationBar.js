@@ -4,7 +4,6 @@ import React, { Component } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import { Icon, IconBack, IconCameraToggle } from "../../../base/icons";
 
-import { appNavigate } from '../../../app';
 import { toggleCameraFacingMode } from "../../../base/media";
 import { getConferenceName } from "../../../base/conference";
 import { getFeatureFlag, MEETING_NAME_ENABLED } from "../../../base/flags";
@@ -14,6 +13,7 @@ import { isToolboxVisible } from "../../../toolbox";
 
 import ConferenceTimer from "../ConferenceTimer";
 import styles, { NAVBAR_GRADIENT_COLORS } from "./styles";
+import {sendEvent} from "../../../mobile/external-api/functions";
 
 type Props = {
     /**
@@ -32,6 +32,8 @@ type Props = {
      */
     _visible: boolean,
 };
+
+const ON_GO_TO_PICTURE_IN_PICTURE = "CONFERENCE_GO_TO_PICTURE_IN_PICTURE"
 
 /**
  * Implements a navigation bar component that is rendered on top of the
@@ -64,7 +66,7 @@ class NavigationBar extends Component<Props> {
                     )}
                     <ConferenceTimer />
                 </View>
-                <BackButton dispatch={this.props.dispatch}/>
+                <BackButton dispatch={this.props.dispatch} store={this.props.state}/>
                 <SwitchCamButton dispatch={this.props.dispatch} />
             </View>,
         ];
@@ -75,23 +77,24 @@ function BackButton(props) {
     return (
         <TouchableOpacity
             onPress={function () {
-                props.dispatch(appNavigate(undefined));
+                sendEvent(props.store, ON_GO_TO_PICTURE_IN_PICTURE, {prop1: 'kuku'});
             }}
-            style={[Button, {
-                left: 16,
-                top: 0,
-                justifyContent: "center",
-                width: 40,
-            }]}
+            style={[
+                Button,
+                {
+                    left: 16,
+                    top: 0,
+                    justifyContent: "center",
+                    width: 40,
+                },
+            ]}
         >
-            <View
-                style={ButtonBgView}
-            />
+            <View style={ButtonBgView} />
             <Icon
                 color={"#FFF"}
                 src={IconBack}
                 size={20}
-                style={[IconStyles, {marginLeft: 8}]}
+                style={[IconStyles, { marginLeft: 8 }]}
             />
         </TouchableOpacity>
     );
@@ -103,21 +106,22 @@ function SwitchCamButton(props) {
             onPress={function () {
                 props.dispatch(toggleCameraFacingMode());
             }}
-            style={[Button, {
-                alignItems: "center",
-                borderRadius: 20,
-                height: 40,
-                position: "absolute",
-                right: 16,
-                top: 0,
-                justifyContent: "center",
-                width: 40,
-                zIndex: 10,
-            }]}
+            style={[
+                Button,
+                {
+                    alignItems: "center",
+                    borderRadius: 20,
+                    height: 40,
+                    position: "absolute",
+                    right: 16,
+                    top: 0,
+                    justifyContent: "center",
+                    width: 40,
+                    zIndex: 10,
+                },
+            ]}
         >
-            <View
-                style={ButtonBgView}
-            />
+            <View style={ButtonBgView} />
             <Icon src={IconCameraToggle} size={20} style={IconStyles} />
         </TouchableOpacity>
     );
@@ -130,7 +134,7 @@ const Button = {
     justifyContent: "center",
     width: 40,
     zIndex: 10,
-}
+};
 
 const ButtonBgView = {
     backgroundColor: "#FFF",
@@ -141,7 +145,7 @@ const ButtonBgView = {
     bottom: 0,
     right: 0,
     left: 0,
-}
+};
 
 const IconStyles = {
     shadowColor: "#000",
@@ -161,6 +165,7 @@ const IconStyles = {
  */
 function _mapStateToProps(state) {
     return {
+        state:state,
         _serviceName: state["features/base/config"].serviceName || "",
         _meetingName: getConferenceName(state),
         _meetingNameEnabled: getFeatureFlag(state, MEETING_NAME_ENABLED, true),
