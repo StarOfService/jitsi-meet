@@ -77,7 +77,7 @@ function BackButton(props) {
     return (
         <TouchableOpacity
             onPress={function () {
-                sendEvent(props.store, ON_GO_TO_PICTURE_IN_PICTURE, {prop1: 'kuku'});
+                sendEvent(props.store, ON_GO_TO_PICTURE_IN_PICTURE, {});
             }}
             style={[
                 Button,
