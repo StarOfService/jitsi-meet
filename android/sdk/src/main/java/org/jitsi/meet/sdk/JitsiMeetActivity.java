@@ -227,4 +227,14 @@ public class JitsiMeetActivity extends FragmentActivity
     public void onConferenceWillJoin(Map<String, Object> data) {
         JitsiMeetLogger.i("Conference will join: " + data);
     }
+
+    @Override
+    public void onGoToPictureInPicture(Map<String, Object> data) {
+        JitsiMeetLogger.i("PIP: " + data);
+    }
+
+    @Override
+    public void onLeavePictureInPicture(Map<String, Object> data) {
+        JitsiMeetLogger.i("Leave PIP: " + data);
+    }
 }

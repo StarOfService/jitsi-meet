@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { NativeModules, SafeAreaView, StatusBar } from 'react-native';
+import { NativeModules, SafeAreaView, StatusBar, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { appNavigate } from '../../../app';
@@ -28,7 +28,7 @@ import { BackButtonRegistry } from '../../../mobile/back-button';
 import { AddPeopleDialog, CalleeInfoContainer } from '../../../invite';
 import { Captions } from '../../../subtitles';
 import { isToolboxVisible, setToolboxVisible, Toolbox } from '../../../toolbox';
-
+import { sendEvent } from "../../../mobile/external-api/functions";
 import {
     AbstractConference,
     abstractMapStateToProps
@@ -113,6 +113,8 @@ type Props = AbstractProps & {
     dispatch: Function
 };
 
+const ON_LEAVE_PICTURE_IN_PICTURE = "LEAVE_PICTURE_IN_PICTURE"
+
 /**
  * The conference page of the mobile (i.e. React Native) application.
  */
@@ -130,6 +132,10 @@ class Conference extends AbstractConference<Props, *> {
         this._onClick = this._onClick.bind(this);
         this._onHardwareBackPress = this._onHardwareBackPress.bind(this);
         this._setToolboxVisible = this._setToolboxVisible.bind(this);
+
+        this.state = {
+            isPipEnabled: false
+        };
     }
 
     /**
@@ -164,12 +170,13 @@ class Conference extends AbstractConference<Props, *> {
      */
     render() {
         return (
-            <Container style = { styles.conference }>
+            <Container style = {styles.conference}>
                 <StatusBar
-                    barStyle = 'light-content'
-                    hidden = { true }
-                    translucent = { true } />
-                { this._renderContent() }
+                        barStyle = 'light-content'
+                        hidden = { true }
+                        translucent = { true } />
+                    { this._renderContent() }
+                {this.state.isPipEnabled && (<TouchableOpacity style={{ backgroundColor: 'transparent', position:'absolute', width: '100%', height: '100%', zIndex: 10000 }} onPress={this.hidePip} />)}
             </Container>
         );
     }
@@ -241,6 +248,20 @@ class Conference extends AbstractConference<Props, *> {
                 : undefined);
     }
 
+    handelBackButtonPress = (callBack) => {
+        this.setState({ isPipEnabled: true }, () => {
+            if (callBack) {
+                callBack(true)
+            }
+        });
+    }
+
+    hidePip = (callBack) => {
+        this.setState({ isPipEnabled: false }, () => {
+            sendEvent(this.props.state, ON_LEAVE_PICTURE_IN_PICTURE, {});
+        });
+    }
+
     /**
      * Renders the content for the Conference container.
      *
@@ -288,12 +309,13 @@ class Conference extends AbstractConference<Props, *> {
                             <LoadingIndicator />
                         </TintedView>
                 }
+                {
+                    !this.state.isPipEnabled && (
+                        <SafeAreaView
+                            pointerEvents = 'box-none'
+                            style = { styles.toolboxAndFilmstripContainer }>
 
-                <SafeAreaView
-                    pointerEvents = 'box-none'
-                    style = { styles.toolboxAndFilmstripContainer }>
-
-                    {/* { showGradient && <LinearGradient
+                            {/* { showGradient && <LinearGradient
                         colors = { NAVBAR_GRADIENT_COLORS }
                         end = {{
                             x: 0.0,
@@ -309,15 +331,15 @@ class Conference extends AbstractConference<Props, *> {
                             applyGradientStretching ? styles.gradientStretchBottom : undefined
                         ] } />} */}
 
-                    <Labels />
+                            {/* <Labels /> */}
 
-                    <Captions onPress = { this._onClick } />
+                            <Captions onPress = { this._onClick } />
 
-                    {/* { _shouldDisplayTileView || <DisplayNameLabel participantId = { _largeVideoParticipantId } /> } */}
+                            {/* { _shouldDisplayTileView || <DisplayNameLabel participantId = { _largeVideoParticipantId } /> } */}
 
-                    {/* <LonelyMeetingExperience /> */}
+                            {/* <LonelyMeetingExperience /> */}
 
-                    {/*
+                            {/*
                       * The Filmstrip is in a stacking layer above the
                       * LargeVideo. The LargeVideo and the Filmstrip form what
                       * the Web/React app calls "videospace". Presumably, the
@@ -328,16 +350,19 @@ class Conference extends AbstractConference<Props, *> {
                      _shouldDisplayTileView ? undefined : <Filmstrip />
                     }
 
-                    {/*
+                            {/*
                       * The Toolbox is in a stacking layer below the Filmstrip.
                       */}
-                    <Toolbox />
-                </SafeAreaView>
+                            <Toolbox />
+                        </SafeAreaView>
+                    )
+                }
 
                 <SafeAreaView
                     pointerEvents = 'box-none'
                     style = { styles.navBarSafeView }>
-                    <NavigationBar />
+                    <NavigationBar isPipEnabled={this.state.isPipEnabled} onBackButtonPress={this.handelBackButtonPress} />
+                    
                     { this._renderNotificationsContainer() }
                 </SafeAreaView>
 
@@ -502,7 +527,8 @@ function _mapStateToProps(state) {
          * @private
          * @type {boolean}
          */
-        _toolboxVisible: isToolboxVisible(state)
+        _toolboxVisible: isToolboxVisible(state),
+        state:state,
     };
 }
 

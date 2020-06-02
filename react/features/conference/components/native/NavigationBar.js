@@ -33,7 +33,7 @@ type Props = {
     _visible: boolean,
 };
 
-const ON_GO_TO_PICTURE_IN_PICTURE = "CONFERENCE_GO_TO_PICTURE_IN_PICTURE"
+const ON_GO_TO_PICTURE_IN_PICTURE = "GO_TO_PICTURE_IN_PICTURE"
 
 /**
  * Implements a navigation bar component that is rendered on top of the
@@ -52,12 +52,12 @@ class NavigationBar extends Component<Props> {
 
         return [
             <View key={2} pointerEvents="box-none" style={styles.navBarWrapper}>
-                <PictureInPictureButton styles={styles.navBarButton} />
+                {/* <PictureInPictureButton styles={styles.navBarButton} /> */}
                 <View pointerEvents="box-none" style={styles.roomNameWrapper}>
                     {this.props._meetingNameEnabled && (
                         <>
                             <Text numberOfLines={1} style={styles.roomName}>
-                                {this.props._meetingName}
+                                {this.props._name}
                             </Text>
                             <Text numberOfLines={1} style={styles.serviceName}>
                                 {this.props._serviceName}
@@ -66,9 +66,14 @@ class NavigationBar extends Component<Props> {
                     )}
                     <ConferenceTimer />
                 </View>
-                <BackButton dispatch={this.props.dispatch} store={this.props.state}/>
-                <SwitchCamButton dispatch={this.props.dispatch} />
-            </View>,
+                {!this.props.isPipEnabled && (
+                    <>
+                        <BackButton dispatch={this.props.dispatch} store={this.props.state} onPress={this.props.onBackButtonPress}/>
+                        <SwitchCamButton dispatch={this.props.dispatch} />
+                    </>
+                )}
+                
+            </View>
         ];
     }
 }
@@ -77,6 +82,9 @@ function BackButton(props) {
     return (
         <TouchableOpacity
             onPress={function () {
+                //props.dispatch({ type: ON_GO_TO_PICTURE_IN_PICTURE });
+                props.onPress();
+                //this.setstate({ show: true })
                 sendEvent(props.store, ON_GO_TO_PICTURE_IN_PICTURE, {});
             }}
             style={[
@@ -167,6 +175,7 @@ function _mapStateToProps(state) {
     return {
         state:state,
         _serviceName: state["features/base/config"].serviceName || "",
+        _name: state["features/base/settings"].displayName || "",
         _meetingName: getConferenceName(state),
         _meetingNameEnabled: getFeatureFlag(state, MEETING_NAME_ENABLED, true),
         _visible: isToolboxVisible(state),

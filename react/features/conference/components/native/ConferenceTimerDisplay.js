@@ -19,16 +19,12 @@ export default function renderConferenceTimer(timerValue: string) {
                 style={{
                     backgroundColor: "rgba(20, 28, 30, 0.5)",
                     borderRadius: 10,
-                    position: "absolute",
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                }}
-            />
-            <Text numberOfLines={4} style={styles.roomTimer}>
-                {timerValue}
-            </Text>
+                    paddingHorizontal: 10
+                }}>
+                <Text style={styles.roomTimer}>
+                    {timerValue}
+                </Text>
+            </View>
         </View>
     );
 }

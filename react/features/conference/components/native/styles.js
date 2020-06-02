@@ -27,9 +27,10 @@ export default {
      * {@code Conference} style.
      */
     conference: fixAndroidViewClipping({
+        flex: 1,
+        overflow: 'hidden',
         alignSelf: 'stretch',
         backgroundColor: ColorPalette.appBackground,
-        flex: 1
     }),
 
     gradient: {
@@ -126,14 +127,13 @@ export default {
         height: 44,
         justifyContent: 'space-between',
         marginTop: 10,
-        paddingHorizontal: 14
+        //paddingHorizontal: 14
     },
 
     roomTimer: {
         color: ColorPalette.white,
         fontSize: 14,
         lineHeight: 22,
-        marginHorizontal: 10,
     },
 
     roomName: {
@@ -152,7 +152,6 @@ export default {
         flexDirection: 'column',
         alignItems: 'center',
         left: 0,
-        paddingHorizontal: 48,
         paddingTop: 5,
         position: 'absolute',
         right: 0
