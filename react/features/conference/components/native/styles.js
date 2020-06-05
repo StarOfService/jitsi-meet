@@ -126,8 +126,7 @@ export default {
         flexDirection: 'row',
         height: 44,
         justifyContent: 'space-between',
-        marginTop: 10,
-        //paddingHorizontal: 14
+        marginTop: 20
     },
 
     roomTimer: {
@@ -154,7 +153,8 @@ export default {
         left: 0,
         paddingTop: 5,
         position: 'absolute',
-        right: 0
+        right: 0,
+        top: 0
     },
 
     serviceName: {

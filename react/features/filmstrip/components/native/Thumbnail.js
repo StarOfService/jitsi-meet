@@ -187,7 +187,7 @@ function Thumbnail(props: Props) {
                 {/* <ConnectionIndicator participantId = { participant.id } /> */}
             </View>
 
-            <Container style={styles.thumbnailIndicatorContainer}>
+            <Container style={[styles.thumbnailIndicatorContainer]}>
                 {videoMuted && <VideoMutedIndicator />}
                 {audioMuted && <AudioMutedIndicator />}
             </Container>

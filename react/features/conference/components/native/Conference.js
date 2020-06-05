@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { NativeModules, SafeAreaView, StatusBar, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { NativeModules, SafeAreaView, StatusBar, View, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { appNavigate } from '../../../app';
@@ -313,7 +313,7 @@ class Conference extends AbstractConference<Props, *> {
                     !this.state.isPipEnabled && (
                         <SafeAreaView
                             pointerEvents = 'box-none'
-                            style = { styles.toolboxAndFilmstripContainer }>
+                            style = { [styles.toolboxAndFilmstripContainer] }>
 
                             {/* { showGradient && <LinearGradient
                         colors = { NAVBAR_GRADIENT_COLORS }
@@ -353,7 +353,10 @@ class Conference extends AbstractConference<Props, *> {
                             {/*
                       * The Toolbox is in a stacking layer below the Filmstrip.
                       */}
-                            <Toolbox />
+                      <View style={{ marginBottom: 25 }}>
+                        <Toolbox />
+                      </View>
+
                         </SafeAreaView>
                     )
                 }
@@ -362,7 +365,7 @@ class Conference extends AbstractConference<Props, *> {
                     pointerEvents = 'box-none'
                     style = { styles.navBarSafeView }>
                     <NavigationBar isPipEnabled={this.state.isPipEnabled} onBackButtonPress={this.handelBackButtonPress} />
-                    
+
                     { this._renderNotificationsContainer() }
                 </SafeAreaView>
 

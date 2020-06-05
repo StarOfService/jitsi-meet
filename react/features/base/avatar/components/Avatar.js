@@ -9,6 +9,8 @@ import { connect } from '../../redux';
 import { getAvatarColor, getInitials } from '../functions';
 
 import { StatelessAvatar } from '.';
+import styles from "../../participants/components/styles";
+import {View} from "react-native";
 
 export type Props = {
 
@@ -156,8 +158,10 @@ class Avatar<P: Props> extends PureComponent<P, State> {
         }
 
         return (
-            <StatelessAvatar
-                { ...avatarProps } />
+            <View style = {avatarProps.url ?  { flex: 1 } : styles.avatarContainer  }>
+                <StatelessAvatar
+                    { ...avatarProps } />
+            </View>
         );
     }
 

@@ -42,6 +42,12 @@ export default class BaseIndicator extends Component<Props> {
                 style={[
                     highlight ? styles.highlightedIndicator : null,
                     { alignItems: "center", width: 30 },
+                    {
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        borderRadius: 4,
+                        padding:2,
+                        marginLeft: 5,
+                    }
                 ]}
             >
                 <Icon

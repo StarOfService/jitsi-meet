@@ -203,7 +203,7 @@ class ParticipantView extends Component<Props> {
                 onClick = { renderVideo ? undefined : onPress }
                 style = {{
                     ...styles.participantView,
-                    ...this.props.style
+                    ...this.props.style,
                 }}
                 touchFeedback = { false }>
 
@@ -221,11 +221,9 @@ class ParticipantView extends Component<Props> {
                         zoomEnabled = { this.props.zoomEnabled } /> }
 
                 { !renderVideo
-                    && <View style = { styles.avatarContainer }>
-                        <Avatar
-                            participantId = { this.props.participantId }
-                            size = { this.props.avatarSize } />
-                    </View> }
+                    && <Avatar
+                    participantId = { this.props.participantId }
+                    size = { this.props.avatarSize } /> }
 
                 { useTint
 
