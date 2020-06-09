@@ -105,23 +105,30 @@ class Toolbox extends PureComponent<Props> {
             <View
                 accessibilityRole="toolbar"
                 pointerEvents="box-none"
-                style={styles.toolbar}
+                style={[styles.toolbar, { position: 'relative' }]}
             >
                 {/* <ChatButton
                     styles = { buttonStylesBorderless }
                     toggledStyles = { this._getChatButtonToggledStyle(toggledButtonStyles) } /> */}
-                <VideoMuteButton
-                    styles={buttonStyles}
-                    toggledStyles={toggledButtonStyles}
-                />
-                <AudioMuteButton
-                    styles={buttonStyles}
-                    toggledStyles={toggledButtonStyles}
-                />
-                <HangupButton styles={hangupButtonStyles} />
-                <OverflowMenuButton
-                    styles = { buttonStylesBorderless }
-                    toggledStyles = { toggledButtonStyles } />
+                <View
+                    style={[{ justifyContent: 'center', flexDirection: 'row', position: 'relative' }]}
+                >
+                    <VideoMuteButton
+                        styles={buttonStyles}
+                        toggledStyles={toggledButtonStyles}
+                    />
+                    <AudioMuteButton
+                        styles={buttonStyles}
+                        toggledStyles={toggledButtonStyles}
+                    />
+                    <HangupButton styles={hangupButtonStyles} />
+                    <View style={{ position: 'absolute', right: -48, top:  0}}>
+                        <OverflowMenuButton
+                            styles = { buttonStylesBorderless }
+                            toggledStyles = { toggledButtonStyles } />
+                    </View>
+                </View>
+
             </View>
         );
     }

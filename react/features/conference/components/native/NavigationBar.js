@@ -72,7 +72,7 @@ class NavigationBar extends Component<Props> {
                         <SwitchCamButton dispatch={this.props.dispatch} />
                     </>
                 )}
-                
+
             </View>
         ];
     }
@@ -145,7 +145,7 @@ const Button = {
 };
 
 const ButtonBgView = {
-    backgroundColor: "#FFF",
+    backgroundColor: "#141C1E",
     borderRadius: 20,
     position: "absolute",
     opacity: 0.4,

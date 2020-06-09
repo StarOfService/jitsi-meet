@@ -11,7 +11,7 @@ const BUTTON_SIZE = 50;
  * The style of toolbar buttons.
  */
 const toolbarButton = {
-    backgroundColor: schemeColor('button'),
+    backgroundColor: 'rgba(20, 28, 30, 0.4)',
     borderRadius: BUTTON_SIZE / 2,
     borderWidth: 0,
     flex: 0,
@@ -39,7 +39,7 @@ const toolbarButtonIcon = {
  */
 const whiteToolbarButton = {
     ...toolbarButton,
-    backgroundColor: schemeColor('buttonToggled')
+    // backgroundColor: schemeColor('buttonToggled')
 };
 
 /**
@@ -47,7 +47,7 @@ const whiteToolbarButton = {
  */
 const whiteToolbarButtonIcon = {
     ...toolbarButtonIcon,
-    color: ColorPalette.white
+    color: ColorPalette.red
 };
 
 /**
@@ -125,7 +125,6 @@ ColorSchemeRegistry.register('Toolbox', {
         style: {
             ...toolbarButton,
             backgroundColor: schemeColor('hangup'),
-            transform: [{ rotate: '135deg'}]
         },
         underlayColor: ColorPalette.buttonUnderlay
     },
@@ -137,8 +136,8 @@ ColorSchemeRegistry.register('Toolbox', {
         iconStyle: whiteToolbarButtonIcon,
         style: {
             ...whiteToolbarButton,
-            borderColor: schemeColor('buttonToggledBorder'),
-            borderWidth: 1
+            //borderColor: schemeColor('buttonToggledBorder'),
+            //borderWidth: 1
         }
     }
 });

@@ -1,7 +1,16 @@
 // @flow
 
 import React from 'react';
-import { NativeModules, SafeAreaView, StatusBar, View, TouchableOpacity } from 'react-native';
+import {
+    NativeModules,
+    SafeAreaView,
+    StatusBar,
+    View,
+    TouchableOpacity,
+    TextInput,
+    ScrollView,
+    Keyboard
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { appNavigate } from '../../../app';
@@ -134,8 +143,12 @@ class Conference extends AbstractConference<Props, *> {
         this._setToolboxVisible = this._setToolboxVisible.bind(this);
 
         this.state = {
-            isPipEnabled: false
+            isPipEnabled: false,
+            isKeyboardShow: false,
         };
+
+        Keyboard.addListener('keyboardWillShow', this.keyboardWillShow)
+        Keyboard.addListener('keyboardWillHide', this.keyboardWillHide)
     }
 
     /**
@@ -160,6 +173,8 @@ class Conference extends AbstractConference<Props, *> {
     componentWillUnmount() {
         // Tear handling any hardware button presses for back navigation down.
         BackButtonRegistry.removeListener(this._onHardwareBackPress);
+        Keyboard.removeListener('keyboardWillShow', this.keyboardWillShow)
+        Keyboard.removeListener('keyboardWillHide', this.keyboardWillHide)
     }
 
     /**
@@ -256,10 +271,27 @@ class Conference extends AbstractConference<Props, *> {
         });
     }
 
+    keyboardWillShow = () => {
+        this.setState({ isKeyboardShow: true });
+    }
+
+    keyboardWillHide = () => {
+        this.setState({ isKeyboardShow: false });
+    }
+
     hidePip = (callBack) => {
-        this.setState({ isPipEnabled: false }, () => {
-            sendEvent(this.props.state, ON_LEAVE_PICTURE_IN_PICTURE, {});
-        });
+        if (!this.state.isKeyboardShow) {
+            this.setState({ isPipEnabled: false }, () => {
+                sendEvent(this.props.state, ON_LEAVE_PICTURE_IN_PICTURE, {});
+            });
+        } else {
+            Keyboard.dismiss()
+            setTimeout(() => {
+                this.setState({ isPipEnabled: false }, () => {
+                    sendEvent(this.props.state, ON_LEAVE_PICTURE_IN_PICTURE, {});
+                });
+            }, 1000)
+        }
     }
 
     /**
@@ -355,12 +387,12 @@ class Conference extends AbstractConference<Props, *> {
                       */}
                       <View style={{ marginBottom: 25 }}>
                         <Toolbox />
+
                       </View>
 
                         </SafeAreaView>
                     )
                 }
-
                 <SafeAreaView
                     pointerEvents = 'box-none'
                     style = { styles.navBarSafeView }>

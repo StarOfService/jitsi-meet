@@ -129,17 +129,18 @@ class OverflowMenu extends PureComponent<Props, State> {
                 <InviteButton { ...buttonProps } />
                 <AudioOnlyButton { ...buttonProps } />
                 <RaiseHandButton { ...buttonProps } />
-                <MoreOptionsButton { ...moreOptionsButtonProps } />
-                <Collapsible collapsed = { !showMore }>
-                    {/* <ToggleCameraButton { ...buttonProps } /> */}
-                    <TileViewButton { ...buttonProps } />
-                    <RecordButton { ...buttonProps } />
-                    {/* <LiveStreamButton { ...buttonProps } /> */}
-                    <RoomLockButton { ...buttonProps } />
-                    <ClosedCaptionButton { ...buttonProps } />
-                    <SharedDocumentButton { ...buttonProps } />
-                    <HelpButton { ...buttonProps } />
-                </Collapsible>
+                <RecordButton { ...buttonProps } />
+                {/*<MoreOptionsButton { ...moreOptionsButtonProps } />*/}
+                {/*<Collapsible collapsed = { !showMore }>*/}
+                {/*    /!* <ToggleCameraButton { ...buttonProps } /> *!/*/}
+                {/*    /!*<TileViewButton { ...buttonProps } />*!/*/}
+                {/*    <RecordButton { ...buttonProps } />*/}
+                {/*    /!* <LiveStreamButton { ...buttonProps } /> *!/*/}
+                {/*    /!*<RoomLockButton { ...buttonProps } />*!/*/}
+                {/*    <ClosedCaptionButton { ...buttonProps } />*/}
+                {/*    <SharedDocumentButton { ...buttonProps } />*/}
+                {/*    <HelpButton { ...buttonProps } />*/}
+                {/*</Collapsible>*/}
             </BottomSheet>
         );
     }
