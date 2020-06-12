@@ -80,6 +80,14 @@ dependencies {
     implementation project(':react-native-svg')
     implementation project(':react-native-webrtc')
     implementation project(':react-native-webview')
+    implementation project(':react-native-firebase')
+    implementation project(':react-native-cookies')
+    implementation project(':react-native-i18n')
+    implementation project(':react-native-mail-launcher')
+    implementation project(':react-native-image-picker')
+    implementation project(':react-native-device-info')
+    implementation project(':react-native-fetch-blob')
+    implementation project(':react-native-community-geolocation')
 
     testImplementation 'junit:junit:4.12'
 }

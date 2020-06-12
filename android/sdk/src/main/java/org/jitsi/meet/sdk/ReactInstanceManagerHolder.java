@@ -190,6 +190,7 @@ class ReactInstanceManagerHolder {
                 new com.corbt.keepawake.KCKeepAwakePackage(),
                 new com.facebook.react.shell.MainReactPackage(),
                 new com.horcrux.svg.SvgPackage(),
+                new com.RNFetchBlob.RNFetchBlobPackage(),
                 new com.kevinresol.react_native_default_preference.RNDefaultPreferencePackage(),
                 new com.ocetnik.timer.BackgroundTimerPackage(),
                 new com.reactnativecommunity.asyncstorage.AsyncStoragePackage(),
@@ -197,6 +198,13 @@ class ReactInstanceManagerHolder {
                 new com.reactnativecommunity.webview.RNCWebViewPackage(),
                 new com.rnimmersive.RNImmersivePackage(),
                 new com.zmxv.RNSound.RNSoundPackage(),
+                new io.invertase.firebase.RNFirebasePackage(),
+                new com.psykar.cookiemanager.CookieManagerPackage(),
+                new com.AlexanderZaytsev.RNI18n.RNI18nPackage(),
+                new com.imagepicker.ImagePickerPackage(),
+                new com.reactlibrary.RNMailLauncherPackage(),
+                new com.learnium.RNDeviceInfo.RNDeviceInfo(),
+                new com.reactnativecommunity.geolocation.GeolocationPackage(),
                 new ReactPackageAdapter() {
                     @Override
                     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {

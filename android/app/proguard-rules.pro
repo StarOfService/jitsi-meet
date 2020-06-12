@@ -89,4 +89,7 @@
 
 # Hermes
 -keep class com.facebook.hermes.unicode.** { *; }
+# React native Firebae
+-keep class io.invertase.firebase.** { *; }
+-dontwarn io.invertase.firebase.**
 
