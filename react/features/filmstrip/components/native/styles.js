@@ -70,7 +70,8 @@ export default {
      */
     thumbnail: {
         alignItems: 'stretch',
-        backgroundColor: ColorPalette.appBackground,
+        //backgroundColor: ColorPalette.appBackground,
+        backgroundColor: 'red',
         borderRadius: 5,
         flex: 1,
         height: 80,
@@ -137,7 +138,7 @@ ColorSchemeRegistry.register('Thumbnail', {
      * Coloring if the thumbnail background.
      */
     participantViewStyle: {
-        backgroundColor: schemeColor('background')
+        backgroundColor: '#3C3F45'
     },
 
     /**

@@ -51,9 +51,9 @@ class NavigationBar extends Component<Props> {
         }
 
         return [
-            <View key={2} pointerEvents="box-none" style={styles.navBarWrapper}>
+            <View style={styles.navBarWrapper}>
                 {/* <PictureInPictureButton styles={styles.navBarButton} /> */}
-                <View pointerEvents="box-none" style={styles.roomNameWrapper}>
+                <View style={styles.roomNameWrapper}>
                     {this.props._meetingNameEnabled && (
                         <>
                             <Text numberOfLines={1} style={styles.roomName}>

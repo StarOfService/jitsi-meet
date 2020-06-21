@@ -20,6 +20,7 @@ import { shouldRemoteVideosBeVisible } from '../../functions';
 import { getCurrentLayout, LAYOUTS } from '../../../video-layout';
 
 import Toolbar from './Toolbar';
+import {background} from "@atlaskit/theme/dist/cjs/colors";
 
 declare var APP: Object;
 declare var interfaceConfig: Object;
