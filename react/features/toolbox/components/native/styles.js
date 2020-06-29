@@ -11,7 +11,7 @@ const BUTTON_SIZE = 50;
  * The style of toolbar buttons.
  */
 const toolbarButton = {
-    backgroundColor: 'rgba(20, 28, 30, 0.4)',
+    backgroundColor: 'rgba(20, 28, 30, 1)',
     borderRadius: BUTTON_SIZE / 2,
     borderWidth: 0,
     flex: 0,

@@ -14,7 +14,11 @@ import { isToolboxVisible } from "../../../toolbox";
 import ConferenceTimer from "../ConferenceTimer";
 import styles, { NAVBAR_GRADIENT_COLORS } from "./styles";
 import {sendEvent} from "../../../mobile/external-api/functions";
-
+import { isLocalVideoTrackMuted } from '../../../base/tracks';
+import {
+    isPrejoinPageVisible,
+    isPrejoinVideoDisabled,
+} from '../../../prejoin/functions';
 type Props = {
     /**
      * Name of the meeting we're currently in.
@@ -69,7 +73,7 @@ class NavigationBar extends Component<Props> {
                 {!this.props.isPipEnabled && (
                     <>
                         <BackButton dispatch={this.props.dispatch} store={this.props.state} onPress={this.props.onBackButtonPress}/>
-                        <SwitchCamButton dispatch={this.props.dispatch} />
+                        <SwitchCamButton dispatch={this.props.dispatch} {...this.props} />
                     </>
                 )}
 
@@ -109,7 +113,7 @@ function BackButton(props) {
 }
 
 function SwitchCamButton(props) {
-    return (
+    return !props._videoMuted && (
         <TouchableOpacity
             onPress={function () {
                 props.dispatch(toggleCameraFacingMode());
@@ -145,10 +149,9 @@ const Button = {
 };
 
 const ButtonBgView = {
-    backgroundColor: "#141C1E",
+    backgroundColor: "rgba(20, 28, 30, 0.4)",
     borderRadius: 20,
     position: "absolute",
-    opacity: 0.4,
     top: 0,
     bottom: 0,
     right: 0,
@@ -172,8 +175,15 @@ const IconStyles = {
  * @returns {Props}
  */
 function _mapStateToProps(state) {
+    const tracks = state['features/base/tracks'];
+    let _videoMuted = isLocalVideoTrackMuted(tracks);
+
+    if (isPrejoinPageVisible(state)) {
+        _videoMuted = isPrejoinVideoMuted(state);
+    }
     return {
         state:state,
+        _videoMuted,
         _serviceName: state["features/base/config"].serviceName || "",
         _name: state["features/base/settings"].displayName || "",
         _meetingName: getConferenceName(state),
