@@ -56,7 +56,6 @@ class NavigationBar extends Component<Props> {
 
         return [
             <View style={styles.navBarWrapper}>
-                {/* <PictureInPictureButton styles={styles.navBarButton} /> */}
                 <View style={styles.roomNameWrapper}>
                     {this.props._meetingNameEnabled && (
                         <>

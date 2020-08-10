@@ -89,7 +89,7 @@ class Toolbox extends PureComponent<Props> {
      * @returns {React$Node}
      */
     _renderToolbar() {
-        const { _styles } = this.props;
+        const { _styles, onPIP } = this.props;
         const {
             buttonStyles,
             buttonStylesBorderless,
@@ -124,6 +124,7 @@ class Toolbox extends PureComponent<Props> {
                     <HangupButton styles={hangupButtonStyles} />
                     <View style={{ position: 'absolute', right: -48, top:  0}}>
                         <OverflowMenuButton
+                            onPIP={onPIP}
                             styles = { buttonStylesBorderless }
                             toggledStyles = { toggledButtonStyles } />
                     </View>

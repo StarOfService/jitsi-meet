@@ -205,6 +205,8 @@ class ReactInstanceManagerHolder {
                 new com.reactlibrary.RNMailLauncherPackage(),
                 new com.learnium.RNDeviceInfo.RNDeviceInfo(),
                 new com.reactnativecommunity.geolocation.GeolocationPackage(),
+                new com.reactpiplibrary.RNAndroidPipPackage(),
+                new cl.json.RNSharePackage(),
                 new ReactPackageAdapter() {
                     @Override
                     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {

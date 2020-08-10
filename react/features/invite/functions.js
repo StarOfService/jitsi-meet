@@ -417,7 +417,8 @@ export function getShareInfoText(
         roomUrl = `<a href="${roomUrl}">${roomUrl}</a>`;
     }
 
-    let infoText = i18next.t('share.mainText', { roomUrl });
+    //let infoText = i18next.t('share.mainText', { roomUrl });
+    let infoText = roomUrl;
 
     if (includeDialInfo) {
         const { room } = parseURIString(inviteUrl);

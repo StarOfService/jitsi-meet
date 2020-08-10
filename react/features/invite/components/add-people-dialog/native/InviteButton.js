@@ -10,6 +10,8 @@ import { AbstractButton } from '../../../../base/toolbox';
 import type { AbstractButtonProps } from '../../../../base/toolbox';
 
 import { doInvitePeople } from '../../../actions.native';
+import {Platform} from "../../../../base/react";
+import {sendEvent} from "../../../../mobile/external-api";
 
 type Props = AbstractButtonProps & {
 
@@ -35,6 +37,9 @@ class InviteButton extends AbstractButton<Props, *> {
      * @returns {void}
      */
     _handleClick() {
+        if (Platform.OS === 'ios') {
+            this.props.onPIP()
+        }
         this.props.dispatch(doInvitePeople());
     }
 }

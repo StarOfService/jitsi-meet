@@ -126,7 +126,7 @@ export default {
         flexDirection: 'row',
         height: 44,
         justifyContent: 'space-between',
-        marginTop: 20
+        marginTop: 30
     },
 
     roomTimer: {
@@ -151,10 +151,11 @@ export default {
         flexDirection: 'column',
         alignItems: 'center',
         left: 0,
-        paddingTop: 5,
+        paddingTop: 15,
         position: 'absolute',
         right: 0,
-        top: 0
+        top: 10,
+
     },
 
     serviceName: {

@@ -27,15 +27,6 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
                 src={this.props.icon}
                 style={[
                     styles && styles.iconStyle,
-                    {
-                        shadowColor: "#000",
-                        shadowOffset: {
-                            width: 1,
-                            height: 1,
-                        },
-                        shadowOpacity: 0.2,
-                        shadowRadius: 1,
-                    },
                 ]}
             />
         );

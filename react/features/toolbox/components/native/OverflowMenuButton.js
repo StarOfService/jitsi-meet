@@ -35,7 +35,7 @@ class OverflowMenuButton extends AbstractButton<Props, *> {
      * @returns {void}
      */
     _handleClick() {
-        this.props.dispatch(openDialog(OverflowMenu));
+        this.props.dispatch(openDialog(OverflowMenu, { onPIP: this.props.onPIP }));
     }
 }
 

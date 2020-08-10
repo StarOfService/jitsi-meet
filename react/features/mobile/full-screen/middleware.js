@@ -24,8 +24,8 @@ import { _SET_IMMERSIVE_LISTENER } from './actionTypes';
  */
 MiddlewareRegistry.register(store => next => action => {
     switch (action.type) {
-    case _SET_IMMERSIVE_LISTENER:
-        return _setImmersiveListenerF(store, next, action);
+    // case _SET_IMMERSIVE_LISTENER:
+    //     return _setImmersiveListenerF(store, next, action);
 
     case APP_WILL_MOUNT: {
         const result = next(action);
@@ -91,9 +91,9 @@ function _onImmersiveChange({ getState }) {
 function _setFullScreen(fullScreen: boolean) {
     // XXX The React Native module Immersive is only implemented on Android and
     // throws on other platforms.
-    if (Platform.OS === 'android') {
-        fullScreen ? Immersive.on() : Immersive.off();
-    }
+    // if (Platform.OS === 'android') {
+    //     fullScreen ? Immersive.on() : Immersive.off();
+    // }
 }
 
 /**

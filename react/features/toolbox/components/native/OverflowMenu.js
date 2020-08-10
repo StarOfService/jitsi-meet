@@ -109,6 +109,7 @@ class OverflowMenu extends PureComponent<Props, State> {
         const { showMore } = this.state;
 
         const buttonProps = {
+            onPIP: this.props.onPIP,
             afterClick: this._onCancel,
             showLabel: true,
             styles: _bottomSheetStyles.buttons

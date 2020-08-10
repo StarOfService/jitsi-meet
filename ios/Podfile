@@ -62,12 +62,12 @@ target 'JitsiMeet' do
   pod 'RNGoogleSignin', :path => '../node_modules/@react-native-community/google-signin'
   pod 'RNSound', :path => '../node_modules/react-native-sound'
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
+  pod 'RNShare', :path => '../node_modules/react-native-share'
   pod 'RNWatch', :path => '../node_modules/react-native-watch-connectivity'
   pod 'RNDefaultPreference', :path => '../node_modules/react-native-default-preference'
 
   # Native pod dependencies
   #
-
   pod 'Amplitude-iOS', '~> 4.0.4'
   pod 'CocoaLumberjack', '~>3.5.3'
   pod 'ObjectiveDropboxOfficial', '~> 3.9.4'

@@ -123,6 +123,7 @@ type Props = AbstractProps & {
 };
 
 const ON_LEAVE_PICTURE_IN_PICTURE = "LEAVE_PICTURE_IN_PICTURE"
+const ON_INVITE_PEOPLE = "INVITE_PEOPLE"
 
 /**
  * The conference page of the mobile (i.e. React Native) application.
@@ -186,10 +187,10 @@ class Conference extends AbstractConference<Props, *> {
     render() {
         return (
             <Container style = {styles.conference}>
-                <StatusBar
-                        barStyle = 'light-content'
-                        hidden = { true }
-                        translucent = { true } />
+                {/*<StatusBar*/}
+                {/*        barStyle = 'light-content'*/}
+                {/*        hidden = { true }*/}
+                {/*        translucent = { true } />*/}
                     { this._renderContent() }
                 {this.state.isPipEnabled && (<TouchableOpacity style={{ backgroundColor: 'transparent', position:'absolute', width: '100%', height: '100%', zIndex: 10000 }} onPress={this.hidePip} />)}
             </Container>
@@ -269,6 +270,11 @@ class Conference extends AbstractConference<Props, *> {
                 callBack(true)
             }
         });
+    }
+
+    onInvitePeople = (callBack) => {
+        this.handelBackButtonPress()
+        sendEvent(this.props.state, ON_INVITE_PEOPLE, {});
     }
 
     keyboardWillShow = () => {
@@ -386,8 +392,7 @@ class Conference extends AbstractConference<Props, *> {
                       * The Toolbox is in a stacking layer below the Filmstrip.
                       */}
                       <View style={{ marginBottom: 25 }}>
-                        <Toolbox />
-
+                        <Toolbox onPIP={this.onInvitePeople} />
                       </View>
 
                         </SafeAreaView>
