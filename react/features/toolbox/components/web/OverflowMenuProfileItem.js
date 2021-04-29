@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 
 import { Avatar } from '../../../base/avatar';
+import { translate } from '../../../base/i18n';
 import { getLocalParticipant } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 
@@ -28,7 +29,12 @@ type Props = {
      * The callback to invoke when {@code OverflowMenuProfileItem} is
      * clicked.
      */
-    onClick: Function
+    onClick: Function,
+
+    /**
+     * Invoked to obtain translated strings.
+     */
+    t: Function
 };
 
 /**
@@ -58,7 +64,7 @@ class OverflowMenuProfileItem extends Component<Props> {
      * @returns {ReactElement}
      */
     render() {
-        const { _localParticipant, _unclickable } = this.props;
+        const { _localParticipant, _unclickable, t } = this.props;
         const classNames = `overflow-menu-item ${
             _unclickable ? 'unclickable' : ''}`;
         let displayName;
@@ -71,13 +77,13 @@ class OverflowMenuProfileItem extends Component<Props> {
 
         return (
             <li
-                aria-label = 'Edit your profile'
+                aria-label = { t('toolbar.accessibilityLabel.profile') }
                 className = { classNames }
                 onClick = { this._onClick }>
                 <span className = 'overflow-menu-item-icon'>
                     <Avatar
                         participantId = { _localParticipant.id }
-                        size = { 24 } />
+                        size = { 20 } />
                 </span>
                 <span className = 'profile-text'>
                     { displayName }
@@ -114,9 +120,9 @@ class OverflowMenuProfileItem extends Component<Props> {
 function _mapStateToProps(state) {
     return {
         _localParticipant: getLocalParticipant(state),
-        _unclickable: !state['features/base/jwt'].isGuest
+        _unclickable: state['features/base/config'].disableProfile
             || !interfaceConfig.SETTINGS_SECTIONS.includes('profile')
     };
 }
 
-export default connect(_mapStateToProps)(OverflowMenuProfileItem);
+export default translate(connect(_mapStateToProps)(OverflowMenuProfileItem));

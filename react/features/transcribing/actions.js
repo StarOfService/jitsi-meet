@@ -1,17 +1,18 @@
 // @flow
 
 import {
-    _POTENTIAL_TRANSCRIBER_JOINED,
-    _TRANSCRIBER_JOINED,
-    _TRANSCRIBER_LEFT,
-    SET_PENDING_TRANSCRIBING_NOTIFICATION_UID
-} from './actionTypes';
-import {
     NOTIFICATION_TIMEOUT,
     hideNotification,
     showErrorNotification,
     showNotification
 } from '../notifications';
+
+import {
+    _POTENTIAL_TRANSCRIBER_JOINED,
+    _TRANSCRIBER_JOINED,
+    _TRANSCRIBER_LEFT,
+    SET_PENDING_TRANSCRIBING_NOTIFICATION_UID
+} from './actionTypes';
 
 /**
  * Notify that the transcriber, with a unique ID, has joined.
@@ -68,17 +69,16 @@ export function potentialTranscriberJoined(participantId: string) {
  * @returns {Function}
  */
 export function showPendingTranscribingNotification() {
-    return (dispatch: Function) => {
-        const showNotificationAction = showNotification({
+    return async (dispatch: Function) => {
+        const notification = await dispatch(showNotification({
             descriptionKey: 'transcribing.pending',
             isDismissAllowed: false,
             titleKey: 'dialog.transcribing'
-        });
+        }));
 
-        dispatch(showNotificationAction);
-
-        dispatch(setPendingTranscribingNotificationUid(
-            showNotificationAction.uid));
+        if (notification) {
+            dispatch(setPendingTranscribingNotificationUid(notification.uid));
+        }
     };
 }
 

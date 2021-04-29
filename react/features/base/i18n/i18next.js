@@ -1,9 +1,9 @@
 // @flow
 
+import COUNTRIES_RESOURCES from 'i18n-iso-countries/langs/en.json';
 import i18next from 'i18next';
 import I18nextXHRBackend from 'i18next-xhr-backend';
 
-import COUNTRIES_RESOURCES from 'i18n-iso-countries/langs/en.json';
 import LANGUAGES_RESOURCES from '../../../../lang/languages.json';
 import MAIN_RESOURCES from '../../../../lang/main.json';
 
@@ -18,7 +18,6 @@ import languageDetector from './languageDetector';
  * @type {Array<string>}
  */
 export const LANGUAGES: Array<string> = Object.keys(LANGUAGES_RESOURCES);
-
 /**
  * The default language.
  *
@@ -27,7 +26,7 @@ export const LANGUAGES: Array<string> = Object.keys(LANGUAGES_RESOURCES);
  * @public
  * @type {string} The default language.
  */
-export const DEFAULT_LANGUAGE = LANGUAGES[0];
+export const DEFAULT_LANGUAGE = 'fr'//LANGUAGES[0];
 
 /**
  * The options to initialize i18next with.
@@ -39,7 +38,7 @@ const options = {
         loadPath: 'lang/{{ns}}-{{lng}}.json'
     },
     defaultNS: 'main',
-    fallbackLng: DEFAULT_LANGUAGE,
+    fallbackLng: 'fr',//DEFAULT_LANGUAGE,
     interpolation: {
         escapeValue: false // not needed for react as it escapes by default
     },
@@ -50,6 +49,7 @@ const options = {
     },
     returnEmptyString: false,
     returnNull: false,
+    supportedLngs: ['en', 'fr'],
 
     // XXX i18next modifies the array lngWhitelist so make sure to clone
     // LANGUAGES.

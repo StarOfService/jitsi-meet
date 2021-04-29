@@ -1,6 +1,6 @@
 /* global $, APP, config */
 
-import { toJid } from '../../../react/features/base/connection';
+import { toJid } from '../../../react/features/base/connection/functions';
 import {
     JitsiConnectionErrors
 } from '../../../react/features/base/lib-jitsi-meet';
@@ -17,6 +17,7 @@ function getPasswordInputHtml() {
     return `
         <input name="username" type="text"
                class="input-control"
+               data-i18n="[placeholder]dialog.user"
                placeholder=${placeholder} autofocus>
         <input name="password" type="password"
                class="input-control"

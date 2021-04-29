@@ -9,23 +9,22 @@ import {
     View
 } from 'react-native';
 
-import { getName } from '../../app';
-
+import { getName } from '../../app/functions';
 import { ColorSchemeRegistry } from '../../base/color-scheme';
 import { translate } from '../../base/i18n';
-import { Icon, IconMenu } from '../../base/icons';
+import { Icon, IconMenu, IconWarning } from '../../base/icons';
 import { MEDIA_TYPE } from '../../base/media';
 import { Header, LoadingIndicator, Text } from '../../base/react';
 import { connect } from '../../base/redux';
 import { ColorPalette } from '../../base/styles';
 import {
     createDesiredLocalTracks,
+    destroyLocalDesktopTrackIfExists,
     destroyLocalTracks
 } from '../../base/tracks';
 import { HelpView } from '../../help';
 import { DialInSummary } from '../../invite';
 import { SettingsView } from '../../settings';
-
 import { setSideBarVisible } from '../actions';
 
 import {
@@ -33,10 +32,10 @@ import {
     _mapStateToProps as _abstractMapStateToProps
 } from './AbstractWelcomePage';
 import LocalVideoTrackUnderlay from './LocalVideoTrackUnderlay';
-import styles, { PLACEHOLDER_TEXT_COLOR } from './styles';
 import VideoSwitch from './VideoSwitch';
 import WelcomePageLists from './WelcomePageLists';
 import WelcomePageSideBar from './WelcomePageSideBar';
+import styles, { PLACEHOLDER_TEXT_COLOR } from './styles';
 
 /**
  * The native container rendering the welcome page.
@@ -83,6 +82,8 @@ class WelcomePage extends AbstractWelcomePage {
         if (this.props._settings.startAudioOnly) {
             dispatch(destroyLocalTracks());
         } else {
+            dispatch(destroyLocalDesktopTrackIfExists());
+
             // Make sure we don't request the permission for the camera from
             // the start. We will, however, create a video track iff the user
             // already granted the permission.
@@ -120,6 +121,28 @@ class WelcomePage extends AbstractWelcomePage {
     }
 
     /**
+     * Renders the insecure room name warning.
+     *
+     * @inheritdoc
+     */
+    _doRenderInsecureRoomNameWarning() {
+        return (
+            <View
+                style = { [
+                    styles.messageContainer,
+                    styles.insecureRoomNameWarningContainer
+                ] }>
+                <Icon
+                    src = { IconWarning }
+                    style = { styles.insecureRoomNameWarningIcon } />
+                <Text style = { styles.insecureRoomNameWarningText }>
+                    { this.props.t('security.insecureRoomNameWarning') }
+                </Text>
+            </View>
+        );
+    }
+
+    /**
      * Constructs a style array to handle the hint box animation.
      *
      * @private
@@ -127,6 +150,7 @@ class WelcomePage extends AbstractWelcomePage {
      */
     _getHintBoxStyle() {
         return [
+            styles.messageContainer,
             styles.hintContainer,
             {
                 opacity: this.state.hintBoxAnimation
@@ -143,10 +167,17 @@ class WelcomePage extends AbstractWelcomePage {
      * @returns {void}
      */
     _onFieldFocusChange(focused) {
-        focused
-            && this.setState({
-                _fieldFocused: true
+        if (focused) {
+            // Stop placeholder animation.
+            this._clearTimeouts();
+            this.setState({
+                _fieldFocused: true,
+                roomPlaceholder: ''
             });
+        } else {
+            // Restart room placeholder animation.
+            this._updateRoomname();
+        }
 
         Animated.timing(
             this.state.hintBoxAnimation,
@@ -283,6 +314,9 @@ class WelcomePage extends AbstractWelcomePage {
                                 style = { styles.textInput }
                                 underlineColorAndroid = 'transparent'
                                 value = { this.state.room } />
+                            {
+                                this._renderInsecureRoomNameWarning()
+                            }
                             {
                                 this._renderHintBox()
                             }

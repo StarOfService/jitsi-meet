@@ -3,12 +3,13 @@
 import type { Dispatch } from 'redux';
 
 import { getInviteURL } from '../base/connection';
-import { inviteVideoRooms } from '../videosipgw';
 import { getParticipants } from '../base/participants';
+import { inviteVideoRooms } from '../videosipgw';
 
 import {
     ADD_PENDING_INVITE_REQUEST,
     BEGIN_ADD_PEOPLE,
+    HIDE_ADD_PEOPLE_DIALOG,
     REMOVE_PENDING_INVITE_REQUESTS,
     SET_CALLEE_INFO_VISIBLE,
     UPDATE_DIAL_IN_NUMBERS_FAILED,
@@ -36,12 +37,26 @@ export function beginAddPeople() {
     };
 }
 
+/**
+ * Creates a (redux) action to signal that the {@code AddPeopleDialog}
+ * should close.
+ *
+ * @returns {{
+ *     type: HIDE_ADD_PEOPLE_DIALOG
+ * }}
+ */
+export function hideAddPeopleDialog() {
+    return {
+        type: HIDE_ADD_PEOPLE_DIALOG
+    };
+}
+
 
 /**
  * Invites (i.e. Sends invites to) an array of invitees (which may be a
  * combination of users, rooms, phone numbers, and video rooms.
  *
- * @param  {Array<Object>} invitees - The recepients to send invites to.
+ * @param  {Array<Object>} invitees - The recipients to send invites to.
  * @param  {Array<Object>} showCalleeInfo - Indicates whether the
  * {@code CalleeInfo} should be displayed or not.
  * @returns {Promise<Array<Object>>} A {@code Promise} resolving with an array
@@ -165,9 +180,10 @@ export function updateDialInNumbers() {
         const state = getState();
         const { dialInConfCodeUrl, dialInNumbersUrl, hosts }
             = state['features/base/config'];
+        const { numbersFetched } = state['features/invite'];
         const mucURL = hosts && hosts.muc;
 
-        if (!dialInConfCodeUrl || !dialInNumbersUrl || !mucURL) {
+        if (numbersFetched || !dialInConfCodeUrl || !dialInNumbersUrl || !mucURL) {
             // URLs for fetching dial in numbers not defined
             return;
         }

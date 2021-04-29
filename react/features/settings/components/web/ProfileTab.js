@@ -1,17 +1,17 @@
 // @flow
 
-import Button from '@atlaskit/button';
+import Button from '@atlaskit/button/standard-button';
 import { FieldTextStateless } from '@atlaskit/field-text';
 import React from 'react';
 
-import { AbstractDialogTab } from '../../../base/dialog';
-import type { Props as AbstractDialogTabProps } from '../../../base/dialog';
-import { translate } from '../../../base/i18n';
 import UIEvents from '../../../../../service/UI/UIEvents';
 import {
     sendAnalytics,
     createProfilePanelButtonEvent
 } from '../../../analytics';
+import { AbstractDialogTab } from '../../../base/dialog';
+import type { Props as AbstractDialogTabProps } from '../../../base/dialog';
+import { translate } from '../../../base/i18n';
 
 declare var APP: Object;
 

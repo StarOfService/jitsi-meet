@@ -1,14 +1,16 @@
 // @flow
 
-import React, { Component } from "react";
-import { View } from "react-native";
+import React, { Component } from 'react';
+import { View } from 'react-native';
 
-import { Icon } from "../../../icons";
-import { type StyleType } from "../../../styles";
+import { Icon } from '../../../icons';
+import { type StyleType } from '../../../styles';
 
-import styles from "./indicatorstyles";
+import styles from './indicatorstyles';
+import { BASE_INDICATOR } from './styles';
 
 type Props = {
+
     /**
      * True if a highlighted background has to be applied.
      */
@@ -22,7 +24,7 @@ type Props = {
     /**
      * Additional style to be applied to the icon element.
      */
-    iconStyle: StyleType,
+    iconStyle: StyleType
 };
 
 /**
@@ -37,25 +39,17 @@ export default class BaseIndicator extends Component<Props> {
      */
     render() {
         const { highlight, icon, iconStyle } = this.props;
+
         return (
             <View
-                style={[
-                    highlight ? styles.highlightedIndicator : null,
-                    { alignItems: "center", width: 30 },
-                    {
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        borderRadius: 4,
-                        padding:2,
-                        marginLeft: 5,
-                    }
-                ]}
-            >
+                style = { [ BASE_INDICATOR,
+                    highlight ? styles.highlightedIndicator : null ] }>
                 <Icon
-                    color={iconStyle?.color || "#141C1E"}
-                    size={20}
-                    src={icon}
-                    style={[styles.indicator, iconStyle]}
-                />
+                    src = { icon }
+                    style = { [
+                        styles.indicator,
+                        iconStyle
+                    ] } />
             </View>
         );
     }

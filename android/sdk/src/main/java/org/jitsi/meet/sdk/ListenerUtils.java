@@ -27,11 +27,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
+import android.util.Log;
 
 /**
  * Utility methods for helping with transforming {@link ExternalAPIModule}
  * events into listener methods. Used with descendants of {@link BaseReactView}.
  */
+@Deprecated
 public final class ListenerUtils {
     /**
      * Extracts the methods defined in a listener and creates a mapping of this
@@ -62,7 +64,6 @@ public final class ListenerUtils {
             //   coding style customary to Java in general and the projects of
             //   the Jitsi community in particular).
             String name = method.getName();
-
             if (!onPattern.matcher(name).find()) {
                 continue;
             }
@@ -71,8 +72,8 @@ public final class ListenerUtils {
             //   assignable from HashMap.
             Class<?>[] parameterTypes = method.getParameterTypes();
 
-            if (parameterTypes.length != 1
-                    || !parameterTypes[0].isAssignableFrom(HashMap.class)) {
+            if (!name.equals("collapseVideo") &&  (parameterTypes.length != 1
+                    || !parameterTypes[0].isAssignableFrom(HashMap.class))) {
                 continue;
             }
 

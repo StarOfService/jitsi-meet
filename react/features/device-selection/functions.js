@@ -32,6 +32,7 @@ export function getDeviceSelectionDialogProps(stateful: Object | Function) {
     const state = toState(stateful);
     const settings = state['features/base/settings'];
     const { conference } = state['features/base/conference'];
+    const { permissions } = state['features/base/devices'];
     let disableAudioInputChange = !JitsiMeetJS.mediaDevices.isMultipleAudioInputSupported();
     let selectedAudioInputId = settings.micDeviceId;
     let selectedAudioOutputId = getAudioOutputDeviceId();
@@ -55,6 +56,8 @@ export function getDeviceSelectionDialogProps(stateful: Object | Function) {
         disableAudioInputChange,
         disableDeviceChange:
             !JitsiMeetJS.mediaDevices.isDeviceChangeAvailable(),
+        hasAudioPermission: permissions.audio,
+        hasVideoPermission: permissions.video,
         hideAudioInputPreview:
             !JitsiMeetJS.isCollectingLocalStats(),
         hideAudioOutputSelect: !JitsiMeetJS.mediaDevices
@@ -86,7 +89,6 @@ export function processExternalDeviceRequest( // eslint-disable-line max-params
     }
     const state = getState();
     const settings = state['features/base/settings'];
-    const { conference } = state['features/base/conference'];
     let result = true;
 
     switch (request.name) {
@@ -165,7 +167,7 @@ export function processExternalDeviceRequest( // eslint-disable-line max-params
     case 'setDevice': {
         const { device } = request;
 
-        if (!conference) {
+        if (!areDeviceLabelsInitialized(state)) {
             dispatch(addPendingDeviceRequest({
                 type: 'devices',
                 name: 'setDevice',

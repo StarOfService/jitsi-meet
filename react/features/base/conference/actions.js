@@ -6,12 +6,11 @@ import {
     createStartMutedConfigurationEvent,
     sendAnalytics
 } from '../../analytics';
-import { getName } from '../../app';
+import { getName } from '../../app/functions';
 import { endpointMessageReceived } from '../../subtitles';
-
 import { JITSI_CONNECTION_CONFERENCE_KEY } from '../connection';
 import { JitsiConferenceEvents } from '../lib-jitsi-meet';
-import { setAudioMuted, setVideoMuted } from '../media';
+import { MEDIA_TYPE, setAudioMuted, setVideoMuted } from '../media';
 import {
     dominantSpeakerChanged,
     getLocalParticipant,
@@ -23,8 +22,9 @@ import {
     participantRoleChanged,
     participantUpdated
 } from '../participants';
-import { getLocalTracks, trackAdded, trackRemoved } from '../tracks';
+import { getLocalTracks, replaceLocalTrack, trackAdded, trackRemoved } from '../tracks';
 import {
+    getBackendSafePath,
     getBackendSafeRoomName,
     getJitsiMeetGlobalNS
 } from '../util';
@@ -36,6 +36,7 @@ import {
     CONFERENCE_LEFT,
     CONFERENCE_SUBJECT_CHANGED,
     CONFERENCE_TIMESTAMP_CHANGED,
+    CONFERENCE_UNIQUE_ID_SET,
     CONFERENCE_WILL_JOIN,
     CONFERENCE_WILL_LEAVE,
     DATA_CHANNEL_OPENED,
@@ -43,18 +44,14 @@ import {
     LOCK_STATE_CHANGED,
     P2P_STATUS_CHANGED,
     SEND_TONES,
-    SET_DESKTOP_SHARING_ENABLED,
     SET_FOLLOW_ME,
-    SET_MAX_RECEIVER_VIDEO_QUALITY,
     SET_PASSWORD,
     SET_PASSWORD_FAILED,
-    SET_PREFERRED_VIDEO_QUALITY,
     SET_ROOM,
     SET_PENDING_SUBJECT_CHANGE,
     SET_START_MUTED_POLICY
 } from './actionTypes';
 import {
-    AVATAR_ID_COMMAND,
     AVATAR_URL_COMMAND,
     EMAIL_COMMAND,
     JITSI_CONFERENCE_URL_KEY
@@ -75,10 +72,11 @@ declare var APP: Object;
  *
  * @param {JitsiConference} conference - The JitsiConference instance.
  * @param {Dispatch} dispatch - The Redux dispatch function.
+ * @param {Object} state - The Redux state.
  * @private
  * @returns {void}
  */
-function _addConferenceListeners(conference, dispatch) {
+function _addConferenceListeners(conference, dispatch, state) {
     // A simple logger for conference errors received through
     // the listener. These errors are not handled now, but logged.
     conference.on(JitsiConferenceEvents.CONFERENCE_ERROR,
@@ -121,13 +119,12 @@ function _addConferenceListeners(conference, dispatch) {
     conference.on(
         JitsiConferenceEvents.STARTED_MUTED,
         () => {
-            const audioMuted = Boolean(conference.startAudioMuted);
-            const videoMuted = Boolean(conference.startVideoMuted);
+            const audioMuted = Boolean(conference.isStartAudioMuted());
+            const videoMuted = Boolean(conference.isStartVideoMuted());
+            const localTracks = getLocalTracks(state['features/base/tracks']);
 
-            sendAnalytics(createStartMutedConfigurationEvent(
-                'remote', audioMuted, videoMuted));
-            logger.log(`Start muted: ${audioMuted ? 'audio, ' : ''}${
-                videoMuted ? 'video' : ''}`);
+            sendAnalytics(createStartMutedConfigurationEvent('remote', audioMuted, videoMuted));
+            logger.log(`Start muted: ${audioMuted ? 'audio, ' : ''}${videoMuted ? 'video' : ''}`);
 
             // XXX Jicofo tells lib-jitsi-meet to start with audio and/or video
             // muted i.e. Jicofo expresses an intent. Lib-jitsi-meet has turned
@@ -139,6 +136,14 @@ function _addConferenceListeners(conference, dispatch) {
             // acting on Jicofo's intent without the app's knowledge.
             dispatch(setAudioMuted(audioMuted));
             dispatch(setVideoMuted(videoMuted));
+
+            // Remove the tracks from peerconnection as well.
+            for (const track of localTracks) {
+                if ((audioMuted && track.jitsiTrack.getType() === MEDIA_TYPE.AUDIO)
+                    || (videoMuted && track.jitsiTrack.getType() === MEDIA_TYPE.VIDEO)) {
+                    dispatch(replaceLocalTrack(track.jitsiTrack, null, conference));
+                }
+            }
         });
 
     // Dispatches into features/base/tracks follow:
@@ -152,9 +157,9 @@ function _addConferenceListeners(conference, dispatch) {
 
     conference.on(
         JitsiConferenceEvents.TRACK_MUTE_CHANGED,
-        (_, participantThatMutedUs) => {
+        (track, participantThatMutedUs) => {
             if (participantThatMutedUs) {
-                dispatch(participantMutedUs(participantThatMutedUs));
+                dispatch(participantMutedUs(participantThatMutedUs, track));
             }
         });
 
@@ -201,13 +206,6 @@ function _addConferenceListeners(conference, dispatch) {
         })));
 
     conference.addCommandListener(
-        AVATAR_ID_COMMAND,
-        (data, id) => dispatch(participantUpdated({
-            conference,
-            id,
-            avatarID: data.value
-        })));
-    conference.addCommandListener(
         AVATAR_URL_COMMAND,
         (data, id) => dispatch(participantUpdated({
             conference,
@@ -249,6 +247,7 @@ export function authStatusChanged(authEnabled: boolean, authLogin: string) {
  * @param {JitsiConference} conference - The JitsiConference that has failed.
  * @param {string} error - The error describing/detailing the cause of the
  * failure.
+ * @param {any} params - Rest of the params that we receive together with the event.
  * @returns {{
  *     type: CONFERENCE_FAILED,
  *     conference: JitsiConference,
@@ -256,7 +255,7 @@ export function authStatusChanged(authEnabled: boolean, authLogin: string) {
  * }}
  * @public
  */
-export function conferenceFailed(conference: Object, error: string) {
+export function conferenceFailed(conference: Object, error: string, ...params: any) {
     return {
         type: CONFERENCE_FAILED,
         conference,
@@ -265,6 +264,7 @@ export function conferenceFailed(conference: Object, error: string) {
         // jitsi-meet needs it).
         error: {
             name: error,
+            params,
             recoverable: undefined
         }
     };
@@ -333,6 +333,22 @@ export function conferenceTimestampChanged(conferenceTimestamp: number) {
     return {
         type: CONFERENCE_TIMESTAMP_CHANGED,
         conferenceTimestamp
+    };
+}
+
+/**
+* Signals that the unique identifier for conference has been set.
+*
+* @param {JitsiConference} conference - The JitsiConference instance, where the uuid has been set.
+* @returns {{
+*   type: CONFERENCE_UNIQUE_ID_SET,
+*   conference: JitsiConference,
+* }}
+*/
+export function conferenceUniqueIdSet(conference: Object) {
+    return {
+        type: CONFERENCE_UNIQUE_ID_SET,
+        conference
     };
 }
 
@@ -418,7 +434,9 @@ export function createConference() {
         }
 
         const config = state['features/base/config'];
+        const { tenant } = state['features/base/jwt'];
         const { email, name: nick } = getLocalParticipant(state);
+
         const conference
             = connection.initJitsiConference(
 
@@ -426,7 +444,8 @@ export function createConference() {
                     ...config,
                     applicationName: getName(),
                     getWiFiStatsMethod: getJitsiMeetGlobalNS().getWiFiStats,
-                    confID: `${locationURL.host}${locationURL.pathname}`,
+                    confID: `${locationURL.host}${getBackendSafePath(locationURL.pathname)}`,
+                    siteID: tenant,
                     statisticsDisplayName: config.enableDisplayNameInStats ? nick : undefined,
                     statisticsId: config.enableEmailInStats ? email : undefined
                 });
@@ -437,7 +456,7 @@ export function createConference() {
 
         dispatch(_conferenceWillJoin(conference));
 
-        _addConferenceListeners(conference, dispatch);
+        _addConferenceListeners(conference, dispatch, state);
 
         sendLocalParticipant(state, conference);
 
@@ -579,22 +598,6 @@ export function sendTones(tones: string, duration: number, pause: number) {
 }
 
 /**
- * Sets the flag for indicating if desktop sharing is enabled.
- *
- * @param {boolean} desktopSharingEnabled - True if desktop sharing is enabled.
- * @returns {{
- *     type: SET_DESKTOP_SHARING_ENABLED,
- *     desktopSharingEnabled: boolean
- * }}
- */
-export function setDesktopSharingEnabled(desktopSharingEnabled: boolean) {
-    return {
-        type: SET_DESKTOP_SHARING_ENABLED,
-        desktopSharingEnabled
-    };
-}
-
-/**
  * Enables or disables the Follow Me feature.
  *
  * @param {boolean} enabled - Whether or not Follow Me should be enabled.
@@ -607,23 +610,6 @@ export function setFollowMe(enabled: boolean) {
     return {
         type: SET_FOLLOW_ME,
         enabled
-    };
-}
-
-/**
- * Sets the max frame height that should be received from remote videos.
- *
- * @param {number} maxReceiverVideoQuality - The max video frame height to
- * receive.
- * @returns {{
- *     type: SET_MAX_RECEIVER_VIDEO_QUALITY,
- *     maxReceiverVideoQuality: number
- * }}
- */
-export function setMaxReceiverVideoQuality(maxReceiverVideoQuality: number) {
-    return {
-        type: SET_MAX_RECEIVER_VIDEO_QUALITY,
-        maxReceiverVideoQuality
     };
 }
 
@@ -647,28 +633,23 @@ export function setPassword(
         case conference.join: {
             let state = getState()['features/base/conference'];
 
-            // Make sure that the action will set a password for a conference
-            // that the application wants joined.
-            if (state.passwordRequired === conference) {
-                dispatch({
-                    type: SET_PASSWORD,
-                    conference,
-                    method,
-                    password
-                });
+            dispatch({
+                type: SET_PASSWORD,
+                conference,
+                method,
+                password
+            });
 
-                // Join the conference with the newly-set password.
+            // Join the conference with the newly-set password.
 
-                // Make sure that the action did set the password.
-                state = getState()['features/base/conference'];
-                if (state.password === password
-                        && !state.passwordRequired
+            // Make sure that the action did set the password.
+            state = getState()['features/base/conference'];
+            if (state.password === password
 
-                        // Make sure that the application still wants the
-                        // conference joined.
-                        && !state.conference) {
-                    method.call(conference, password);
-                }
+                    // Make sure that the application still wants the
+                    // conference joined.
+                    && !state.conference) {
+                method.call(conference, password);
             }
             break;
         }
@@ -695,24 +676,6 @@ export function setPassword(
             return Promise.reject();
         }
         }
-    };
-}
-
-/**
- * Sets the max frame height the user prefers to send and receive from the
- * remote participants.
- *
- * @param {number} preferredVideoQuality - The max video resolution to send and
- * receive.
- * @returns {{
- *     type: SET_PREFERRED_VIDEO_QUALITY,
- *     preferredVideoQuality: number
- * }}
- */
-export function setPreferredVideoQuality(preferredVideoQuality: number) {
-    return {
-        type: SET_PREFERRED_VIDEO_QUALITY,
-        preferredVideoQuality
     };
 }
 
@@ -763,12 +726,12 @@ export function setStartMutedPolicy(
  * @param {string} subject - The new subject.
  * @returns {void}
  */
-export function setSubject(subject: string = '') {
+export function setSubject(subject: string) {
     return (dispatch: Dispatch<any>, getState: Function) => {
         const { conference } = getState()['features/base/conference'];
 
         if (conference) {
-            conference.setSubject(subject);
+            conference.setSubject(subject || '');
         } else {
             dispatch({
                 type: SET_PENDING_SUBJECT_CHANGE,

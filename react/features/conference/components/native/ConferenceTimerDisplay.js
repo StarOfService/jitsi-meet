@@ -1,30 +1,22 @@
 // @flow
 
-import React from "react";
-import { Text, View } from "react-native";
-
-import styles from "./styles";
+import React from 'react';
+import { Text } from 'react-native';
 
 /**
  * Returns native element to be rendered.
  *
  * @param {string} timerValue - String to display as time.
+ * @param {Object} textStyle - Style to be applied to the text.
  *
  * @returns {ReactElement}
  */
-export default function renderConferenceTimer(timerValue: string) {
+export default function renderConferenceTimer(timerValue: string, textStyle: Object) {
     return (
-        <View style={{ marginTop: 10 }}>
-            <View
-                style={{
-                    backgroundColor: "rgba(20, 28, 30, 0.5)",
-                    borderRadius: 10,
-                    paddingHorizontal: 10
-                }}>
-                <Text style={styles.roomTimer}>
-                    {timerValue}
-                </Text>
-            </View>
-        </View>
+        <Text
+            numberOfLines = { 1 }
+            style = { textStyle }>
+            { timerValue }
+        </Text>
     );
 }

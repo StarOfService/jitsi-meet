@@ -1,8 +1,7 @@
 // @flow
 
-import { NativeModules } from 'react-native';
-
-import { getAppProp } from '../../base/app';
+import { NativeModules } from "react-native";
+import { getAppProp } from "../../base/app";
 
 /**
  * Sends a specific event to the native counterpart of the External API. Native
@@ -16,11 +15,21 @@ import { getAppProp } from '../../base/app';
  * @returns {void}
  */
 export function sendEvent(store: Object, name: string, data: Object) {
+    // return;
     // The JavaScript App needs to provide uniquely identifying information to
     // the native ExternalAPI module so that the latter may match the former to
     // the native view which hosts it.
-    const externalAPIScope = getAppProp(store, 'externalAPIScope');
 
-    externalAPIScope
-        && NativeModules.ExternalAPI.sendEvent(name, data, externalAPIScope);
+    try {
+        const externalAPIScope = getAppProp(store, "externalAPIScope");
+
+        externalAPIScope &&
+            NativeModules.ExternalAPI.sendEvent(name, data, externalAPIScope);
+    } catch (e) {
+        console.log(
+            "[react/features/mobile/external-api/",
+            "Exception in sending event: ",
+            e
+        );
+    }
 }

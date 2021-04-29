@@ -2,8 +2,7 @@
 
 import { ColorSchemeRegistry, schemeColor } from '../../../base/color-scheme';
 import { ColorPalette } from '../../../base/styles';
-
-import { FILMSTRIP_SIZE } from '../../constants';
+import { SMALL_THUMBNAIL_SIZE } from '../../constants';
 
 /**
  * Size for the Avatar.
@@ -16,6 +15,17 @@ export const AVATAR_SIZE = 50;
 export default {
 
     /**
+     * The display name container.
+     */
+    displayNameContainer: {
+        alignSelf: 'center',
+        bottom: 0,
+        flex: 1,
+        margin: 4,
+        position: 'absolute'
+    },
+
+    /**
      * The style of the narrow {@link Filmstrip} version which displays
      * thumbnails in a row at the bottom of the screen.
      */
@@ -23,8 +33,7 @@ export default {
         flexDirection: 'row',
         flexGrow: 0,
         justifyContent: 'flex-end',
-        height: FILMSTRIP_SIZE,
-        marginBottom: 13
+        marginBottom: 5
     },
 
     /**
@@ -47,7 +56,18 @@ export default {
      * Container of the {@link LocalThumbnail}.
      */
     localThumbnail: {
-        flexDirection: 'row',
+        // alignContent: 'stretch',
+        // alignSelf: 'stretch',
+        // aspectRatio: 1,
+        borderRadius: 5,
+        height: 123,
+        // marginTop: 16,
+        // marginRight: 16,
+        maxHeight: 123,
+        maxWidth: 92,
+        width: 92
+        // flexShrink: 0,
+        // flexDirection: 'row'
     },
 
     moderatorIndicatorContainer: {
@@ -60,7 +80,6 @@ export default {
      * The style of the scrollview containing the remote thumbnails.
      */
     scrollView: {
-        paddingRight: 20,
         flexGrow: 0
     },
 
@@ -70,16 +89,17 @@ export default {
      */
     thumbnail: {
         alignItems: 'stretch',
-        //backgroundColor: ColorPalette.appBackground,
-        backgroundColor: 'red',
-        borderRadius: 5,
+        // backgroundColor: 'blue',
+        // backgroundColor: ColorPalette.appBackground,
+        borderColor: '#424242',
+        borderRadius: 3,
+        borderStyle: 'solid',
+        borderWidth: 1,
         flex: 1,
-        height: 80,
+        height: SMALL_THUMBNAIL_SIZE,
         justifyContent: 'center',
-        marginHorizontal: 4,
         overflow: 'hidden',
         position: 'relative',
-        width: 80
     },
 
     /**
@@ -90,7 +110,7 @@ export default {
         bottom: 4,
         flex: 1,
         flexDirection: 'row',
-        right: 4,
+        left: 4,
         position: 'absolute'
     },
 
@@ -138,7 +158,7 @@ ColorSchemeRegistry.register('Thumbnail', {
      * Coloring if the thumbnail background.
      */
     participantViewStyle: {
-        backgroundColor: '#3C3F45'
+        backgroundColor: schemeColor('background')
     },
 
     /**

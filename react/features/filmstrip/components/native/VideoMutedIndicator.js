@@ -1,9 +1,9 @@
 // @flow
 
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
-import { IconCameraDisabled } from "../../../base/icons";
-import { BaseIndicator } from "../../../base/react";
+import { IconCameraDisabled } from '../../../base/icons';
+import { BaseIndicator } from '../../../base/react';
 
 /**
  * Thumbnail badge for displaying the video mute status of a participant.
@@ -17,10 +17,8 @@ export default class VideoMutedIndicator extends Component<{}> {
     render() {
         return (
             <BaseIndicator
-                highlight={false}
-                icon={IconCameraDisabled}
-                iconStyle={{ color: "#CFD3DA" }}
-            />
+                highlight = { false }
+                icon = { IconCameraDisabled } />
         );
     }
 }

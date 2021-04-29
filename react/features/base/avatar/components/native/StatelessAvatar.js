@@ -1,14 +1,15 @@
 // @flow
 
 import React from 'react';
-import { Image, Text, View, Dimensions } from 'react-native';
+import { Image, Text, View } from 'react-native';
 
 import { Icon } from '../../../icons';
 import { type StyleType } from '../../../styles';
-
 import AbstractStatelessAvatar, { type Props as AbstractProps } from '../AbstractStatelessAvatar';
 
 import styles from './styles';
+
+const DEFAULT_AVATAR = require('../../../../../../images/avatar.png');
 
 type Props = AbstractProps & {
 
@@ -18,14 +19,10 @@ type Props = AbstractProps & {
     status?: ?string,
 
     /**
-     * External style passed to the componant.
+     * External style passed to the component.
      */
     style?: StyleType
 };
-
-const DEFAULT_AVATAR = require('../../../../../../images/avatar.png');
-
-const { width, height } = Dimensions.get('window');
 
 /**
  * Implements a stateless avatar component that renders an avatar purely from what gets passed through
@@ -41,26 +38,23 @@ export default class StatelessAvatar extends AbstractStatelessAvatar<Props> {
         const { initials, size, style, url } = this.props;
 
         let avatar;
-        let imageContainerStyle = {}
+
         if (this._isIcon(url)) {
             avatar = this._renderIconAvatar(url);
         } else if (url) {
             avatar = this._renderURLAvatar();
-            imageContainerStyle = { width: '100%', height: '100%' };
-        }
-         else if (initials) {
+        } else if (initials) {
             avatar = this._renderInitialsAvatar();
         } else {
             avatar = this._renderDefaultAvatar();
         }
 
         return (
-            <View style={url ? { flex: 1 } : {}}>
+            <View>
                 <View
                     style = { [
-                        !url ? styles.avatarContainer(size) : {},
-                        style,
-                        imageContainerStyle
+                        styles.avatarContainer(size),
+                        style
                     ] }>
                     { avatar }
                 </View>
@@ -167,7 +161,7 @@ export default class StatelessAvatar extends AbstractStatelessAvatar<Props> {
                 onError = { onAvatarLoadError }
                 resizeMode = 'cover'
                 source = {{ uri: url }}
-                style = { { width: '100%', height: '100%' } } />
+                style = { styles.avatarContent(size) } />
         );
     }
 }

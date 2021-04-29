@@ -21,6 +21,7 @@ import java.util.Map;
 /**
  * Interface for listening to events coming from Jitsi Meet.
  */
+@Deprecated
 public interface JitsiMeetViewListener {
     /**
      * Called when a conference was joined.
@@ -48,17 +49,5 @@ public interface JitsiMeetViewListener {
      */
     void onConferenceWillJoin(Map<String, Object> data);
 
-    /**
-     * Called before the conference is joined.
-     *
-     * @param data Map with a "url" key with the conference URL.
-     */
-    void onGoToPictureInPicture(Map<String, Object> data);
-
-    /**
-     * Called before the conference is joined.
-     *
-     * @param data Map with a "url" key with the conference URL.
-     */
-    void onLeavePictureInPicture(Map<String, Object> data);
+    void onCollapseVideo(Map<String, Object> data);
 }

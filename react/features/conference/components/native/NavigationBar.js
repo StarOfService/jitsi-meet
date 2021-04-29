@@ -1,25 +1,26 @@
 // @flow
 
-import React, { Component } from "react";
-import { Text, View, TouchableOpacity } from "react-native";
-import { Icon, IconBack, IconCameraToggle } from "../../../base/icons";
+import React from 'react';
+import { Text, View } from 'react-native';
 
-import { toggleCameraFacingMode } from "../../../base/media";
-import { getConferenceName } from "../../../base/conference";
-import { getFeatureFlag, MEETING_NAME_ENABLED } from "../../../base/flags";
-import { connect } from "../../../base/redux";
-import { PictureInPictureButton } from "../../../mobile/picture-in-picture";
-import { isToolboxVisible } from "../../../toolbox";
+import { getConferenceName } from '../../../base/conference';
+import { getFeatureFlag, CONFERENCE_TIMER_ENABLED, MEETING_NAME_ENABLED } from '../../../base/flags';
+import { connect } from '../../../base/redux';
+import { PictureInPictureButton } from '../../../mobile/picture-in-picture';
+import { isToolboxVisible } from '../../../toolbox/functions.native';
+import ConferenceTimer from '../ConferenceTimer';
 
-import ConferenceTimer from "../ConferenceTimer";
-import styles, { NAVBAR_GRADIENT_COLORS } from "./styles";
-import {sendEvent} from "../../../mobile/external-api/functions";
-import { isLocalVideoTrackMuted } from '../../../base/tracks';
-import {
-    isPrejoinPageVisible,
-    isPrejoinVideoDisabled,
-} from '../../../prejoin/functions';
+import Labels from './Labels';
+import styles from './styles';
+
+
 type Props = {
+
+    /**
+     * Whether displaying the current conference timer is enabled or not.
+     */
+    _conferenceTimerEnabled: boolean,
+
     /**
      * Name of the meeting we're currently in.
      */
@@ -29,142 +30,58 @@ type Props = {
      * Whether displaying the current meeting name is enabled or not.
      */
     _meetingNameEnabled: boolean,
-    _serviceName: String,
 
     /**
      * True if the navigation bar should be visible.
      */
-    _visible: boolean,
+    _visible: boolean
 };
-
-const ON_GO_TO_PICTURE_IN_PICTURE = "GO_TO_PICTURE_IN_PICTURE"
 
 /**
  * Implements a navigation bar component that is rendered on top of the
  * conference screen.
+ *
+ * @param {Props} props - The React props passed to this component.
+ * @returns {React.Node}
  */
-class NavigationBar extends Component<Props> {
-    /**
-     * Implements {@Component#render}.
-     *
-     * @inheritdoc
-     */
-    render() {
-        if (!this.props._visible) {
-            return null;
-        }
-
-        return [
-            <View style={styles.navBarWrapper}>
-                <View style={styles.roomNameWrapper}>
-                    {this.props._meetingNameEnabled && (
-                        <>
-                            <Text numberOfLines={1} style={styles.roomName}>
-                                {this.props._name}
-                            </Text>
-                            <Text numberOfLines={1} style={styles.serviceName}>
-                                {this.props._serviceName}
-                            </Text>
-                        </>
-                    )}
-                    <ConferenceTimer />
-                </View>
-                {!this.props.isPipEnabled && (
-                    <>
-                        <BackButton dispatch={this.props.dispatch} store={this.props.state} onPress={this.props.onBackButtonPress}/>
-                        <SwitchCamButton dispatch={this.props.dispatch} {...this.props} />
-                    </>
-                )}
-
-            </View>
-        ];
+const NavigationBar = (props: Props) => {
+    if (!props._visible) {
+        return null;
     }
-}
 
-function BackButton(props) {
     return (
-        <TouchableOpacity
-            onPress={function () {
-                //props.dispatch({ type: ON_GO_TO_PICTURE_IN_PICTURE });
-                props.onPress();
-                //this.setstate({ show: true })
-                sendEvent(props.store, ON_GO_TO_PICTURE_IN_PICTURE, {});
-            }}
-            style={[
-                Button,
-                {
-                    left: 16,
-                    top: 0,
-                    justifyContent: "center",
-                    width: 40,
-                },
-            ]}
-        >
-            <View style={ButtonBgView} />
-            <Icon
-                color={"#FFF"}
-                src={IconBack}
-                size={20}
-                style={[IconStyles, { marginLeft: 8 }]}
-            />
-        </TouchableOpacity>
+        <View
+            pointerEvents = 'box-none'
+            style = { styles.navBarWrapper }>
+            <PictureInPictureButton
+                styles = { styles.navBarButton } />
+            <View
+                pointerEvents = 'box-none'
+                style = { styles.roomNameContainer }>
+                <View
+                    pointerEvents = 'box-none'
+                    style = { styles.roomNameWrapper }>
+                    {
+                        props._meetingNameEnabled
+                        && <View style = { styles.roomNameView }>
+                            <Text
+                                numberOfLines = { 1 }
+                                style = { styles.roomName }>
+                                { props._meetingName }
+                            </Text>
+                        </View>
+                    }
+                    {
+                        props._conferenceTimerEnabled
+                            && <View style = { styles.roomTimerView }>
+                                <ConferenceTimer textStyle = { styles.roomTimer } />
+                            </View>
+                    }
+                </View>
+                <Labels />
+            </View>
+        </View>
     );
-}
-
-function SwitchCamButton(props) {
-    return !props._videoMuted && (
-        <TouchableOpacity
-            onPress={function () {
-                props.dispatch(toggleCameraFacingMode());
-            }}
-            style={[
-                Button,
-                {
-                    alignItems: "center",
-                    borderRadius: 20,
-                    height: 40,
-                    position: "absolute",
-                    right: 16,
-                    top: 0,
-                    justifyContent: "center",
-                    width: 40,
-                    zIndex: 10,
-                },
-            ]}
-        >
-            <View style={ButtonBgView} />
-            <Icon src={IconCameraToggle} size={20} style={IconStyles} />
-        </TouchableOpacity>
-    );
-}
-
-const Button = {
-    borderRadius: 20,
-    height: 40,
-    position: "absolute",
-    justifyContent: "center",
-    width: 40,
-    zIndex: 10,
-};
-
-const ButtonBgView = {
-    backgroundColor: "rgba(20, 28, 30, 0.4)",
-    borderRadius: 20,
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
-};
-
-const IconStyles = {
-    shadowColor: "#000",
-    shadowOffset: {
-        width: 1,
-        height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
 };
 
 /**
@@ -174,20 +91,15 @@ const IconStyles = {
  * @returns {Props}
  */
 function _mapStateToProps(state) {
-    const tracks = state['features/base/tracks'];
-    let _videoMuted = isLocalVideoTrackMuted(tracks);
+    const { hideConferenceTimer, hideConferenceSubject } = state['features/base/config'];
 
-    if (isPrejoinPageVisible(state)) {
-        _videoMuted = isPrejoinVideoMuted(state);
-    }
     return {
-        state:state,
-        _videoMuted,
-        _serviceName: state["features/base/config"].serviceName || "",
-        _name: state["features/base/settings"].displayName || "",
+        _conferenceTimerEnabled:
+            getFeatureFlag(state, CONFERENCE_TIMER_ENABLED, true) && !hideConferenceTimer,
         _meetingName: getConferenceName(state),
-        _meetingNameEnabled: getFeatureFlag(state, MEETING_NAME_ENABLED, true),
-        _visible: isToolboxVisible(state),
+        _meetingNameEnabled:
+            getFeatureFlag(state, MEETING_NAME_ENABLED, true) && !hideConferenceSubject,
+        _visible: isToolboxVisible(state)
     };
 }
 

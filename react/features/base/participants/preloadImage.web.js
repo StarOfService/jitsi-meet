@@ -19,6 +19,9 @@ export function preloadImage(src: string | Object): Promise<string> {
 
         image.onload = () => resolve(src);
         image.onerror = reject;
+
+        // $FlowExpectedError
+        image.referrerPolicy = 'no-referrer';
         image.src = src;
     });
 }

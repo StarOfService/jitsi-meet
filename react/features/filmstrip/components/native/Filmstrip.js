@@ -1,20 +1,16 @@
 // @flow
 
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
+import { SafeAreaView, ScrollView } from 'react-native';
 
-import { Container, Platform } from '../../../base/react';
+import { Platform } from '../../../base/react';
 import { connect } from '../../../base/redux';
-import {
-    isNarrowAspectRatio,
-    makeAspectRatioAware
-} from '../../../base/responsive-ui';
-
+import { ASPECT_RATIO_NARROW } from '../../../base/responsive-ui/constants';
 import { isFilmstripVisible } from '../../functions';
 
 import LocalThumbnail from './LocalThumbnail';
-import styles from './styles';
 import Thumbnail from './Thumbnail';
+import styles from './styles';
 
 /**
  * Filmstrip component's property types.
@@ -22,23 +18,17 @@ import Thumbnail from './Thumbnail';
 type Props = {
 
     /**
-     * The indicator which determines whether the filmstrip is enabled.
-     *
-     * @private
+     * Application's aspect ratio.
      */
-    _enabled: boolean,
+    _aspectRatio: Symbol,
 
     /**
      * The participants in the conference.
-     *
-     * @private
      */
     _participants: Array<any>,
 
     /**
      * The indicator which determines whether the filmstrip is visible.
-     *
-     * @private
      */
     _visible: boolean
 };
@@ -91,40 +81,34 @@ class Filmstrip extends Component<Props> {
      * @returns {ReactElement}
      */
     render() {
-        if (!this.props._enabled) {
+        const { _aspectRatio, _participants, _visible } = this.props;
+
+        if (!_visible) {
             return null;
         }
 
-        const isNarrowAspectRatio_ = isNarrowAspectRatio(this);
-        const filmstripStyle
-            = isNarrowAspectRatio_
-                ? styles.filmstripNarrow
-                : styles.filmstripWide;
+        const isNarrowAspectRatio = _aspectRatio === ASPECT_RATIO_NARROW;
+        const filmstripStyle = isNarrowAspectRatio ? styles.filmstripNarrow : styles.filmstripWide;
 
         return (
-            <Container
-                style = { filmstripStyle }
-                visible = { this.props._visible }>
-                {
-                    // this._separateLocalThumbnail
-                    //     && !isNarrowAspectRatio_
-                    //     && <LocalThumbnail />
+            <SafeAreaView style = { filmstripStyle }>
+                {/* {
+                    this._separateLocalThumbnail
+                        && !isNarrowAspectRatio
+                        && <LocalThumbnail />
                 }
                 <ScrollView
-                    horizontal = { isNarrowAspectRatio_ }
+                    horizontal = { isNarrowAspectRatio }
                     showsHorizontalScrollIndicator = { false }
                     showsVerticalScrollIndicator = { false }
                     style = { styles.scrollView } >
                     {
-                        // !this._separateLocalThumbnail
-                        //     && !isNarrowAspectRatio_
-                        //     && <LocalThumbnail />
+                        !this._separateLocalThumbnail && !isNarrowAspectRatio
+                            && <LocalThumbnail />
                     }
                     {
 
-                        this._sort(
-                                this.props._participants,
-                                isNarrowAspectRatio_)
+                        this._sort(_participants, isNarrowAspectRatio)
                             .map(p => (
                                 <Thumbnail
                                     key = { p.id }
@@ -132,17 +116,15 @@ class Filmstrip extends Component<Props> {
 
                     }
                     {
-                        // !this._separateLocalThumbnail
-                            // && isNarrowAspectRatio_
-                            <LocalThumbnail />
+                        !this._separateLocalThumbnail && isNarrowAspectRatio
+                            && <LocalThumbnail />
                     }
                 </ScrollView>
-                {/* {
-                    this._separateLocalThumbnail
-                        && isNarrowAspectRatio_
+                {
+                    this._separateLocalThumbnail && isNarrowAspectRatio
                         && <LocalThumbnail />
                 } */}
-            </Container>
+            </SafeAreaView>
         );
     }
 
@@ -151,13 +133,13 @@ class Filmstrip extends Component<Props> {
      *
      * @param {Participant[]} participants - The array of {@code Participant}s
      * to sort in display order.
-     * @param {boolean} isNarrowAspectRatio_ - Indicates if the aspect ratio is
+     * @param {boolean} isNarrowAspectRatio - Indicates if the aspect ratio is
      * wide or narrow.
      * @private
      * @returns {Participant[]} A new array containing the elements of the
      * specified {@code participants} array sorted in display order.
      */
-    _sort(participants, isNarrowAspectRatio_) {
+    _sort(participants, isNarrowAspectRatio) {
         // XXX Array.prototype.sort() is not appropriate because (1) it operates
         // in place and (2) it is not necessarily stable.
 
@@ -165,7 +147,7 @@ class Filmstrip extends Component<Props> {
             ...participants
         ];
 
-        if (isNarrowAspectRatio_) {
+        if (isNarrowAspectRatio) {
             // When the narrow aspect ratio is used, we want to have the remote
             // participants from right to left with the newest added/joined to
             // the leftmost side. The local participant is the leftmost item.
@@ -181,42 +163,17 @@ class Filmstrip extends Component<Props> {
  *
  * @param {Object} state - The redux state.
  * @private
- * @returns {{
- *     _participants: Participant[],
- *     _visible: boolean
- * }}
+ * @returns {Props}
  */
 function _mapStateToProps(state) {
     const participants = state['features/base/participants'];
     const { enabled } = state['features/filmstrip'];
 
     return {
-        /**
-         * The indicator which determines whether the filmstrip is enabled.
-         *
-         * @private
-         * @type {boolean}
-         */
-        _enabled: enabled,
-
-        /**
-         * The remote participants in the conference.
-         *
-         * @private
-         * @type {Participant[]}
-         */
+        _aspectRatio: state['features/base/responsive-ui'].aspectRatio,
         _participants: participants.filter(p => !p.local),
-
-        /**
-         * The indicator which determines whether the filmstrip is visible. The
-         * mobile/react-native Filmstrip is visible when there are at least 2
-         * participants in the conference (including the local one).
-         *
-         * @private
-         * @type {boolean}
-         */
-        _visible: isFilmstripVisible(state)
+        _visible: enabled && isFilmstripVisible(state)
     };
 }
 
-export default connect(_mapStateToProps)(makeAspectRatioAware(Filmstrip));
+export default connect(_mapStateToProps)(Filmstrip);

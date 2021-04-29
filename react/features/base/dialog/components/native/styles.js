@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-native';
 
 import { ColorSchemeRegistry, schemeColor } from '../../../color-scheme';
 import { BoxModel, ColorPalette } from '../../../styles';
-
 import { PREFERRED_DIALOG_SIZE } from '../../constants';
 
 const BORDER_RADIUS = 5;
@@ -44,7 +43,11 @@ export const bottomSheetStyles = {
         alignItems: 'stretch',
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
+        maxWidth: 500,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '100%'
     },
 
     sheetItemContainer: {
@@ -170,12 +173,6 @@ ColorSchemeRegistry.register('BottomSheet', {
          * Additional style that is not directly used as a style object.
          */
         underlayColor: ColorPalette.overflowMenuItemUnderlay
-    },
-
-    expandIcon: {
-        color: schemeColor('icon'),
-        fontSize: 48,
-        opacity: 0.8
     },
 
     /**

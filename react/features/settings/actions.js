@@ -3,6 +3,8 @@
 import { setFollowMe, setStartMutedPolicy } from '../base/conference';
 import { openDialog } from '../base/dialog';
 import { i18next } from '../base/i18n';
+import { updateSettings } from '../base/settings';
+import { setPrejoinPageVisibility } from '../prejoin/actions';
 
 import {
     SET_AUDIO_SETTINGS_VISIBILITY,
@@ -25,7 +27,7 @@ export function openSettingsDialog(defaultTab: string) {
 }
 
 /**
- * Sets the visiblity of the audio settings.
+ * Sets the visibility of the audio settings.
  *
  * @param {boolean} value - The new value.
  * @returns {Function}
@@ -38,7 +40,7 @@ function setAudioSettingsVisibility(value: boolean) {
 }
 
 /**
- * Sets the visiblity of the video settings.
+ * Sets the visibility of the video settings.
  *
  * @param {boolean} value - The new value.
  * @returns {Function}
@@ -62,6 +64,19 @@ export function submitMoreTab(newState: Object): Function {
 
         if (newState.followMeEnabled !== currentState.followMeEnabled) {
             dispatch(setFollowMe(newState.followMeEnabled));
+        }
+
+        const showPrejoinPage = newState.showPrejoinPage;
+
+        if (showPrejoinPage !== currentState.showPrejoinPage) {
+            // The 'showPrejoin' flag starts as 'true' on every new session.
+            // This prevents displaying the prejoin page when the user re-enables it.
+            if (showPrejoinPage && getState()['features/prejoin']?.showPrejoin) {
+                dispatch(setPrejoinPageVisibility(false));
+            }
+            dispatch(updateSettings({
+                userSelectedSkipPrejoin: !showPrejoinPage
+            }));
         }
 
         if (newState.startAudioMuted !== currentState.startAudioMuted
@@ -97,7 +112,7 @@ export function submitProfileTab(newState: Object): Function {
 }
 
 /**
- * Toggles the visiblity of the audio settings.
+ * Toggles the visibility of the audio settings.
  *
  * @returns {void}
  */
@@ -110,7 +125,7 @@ export function toggleAudioSettings() {
 }
 
 /**
- * Toggles the visiblity of the video settings.
+ * Toggles the visibility of the video settings.
  *
  * @returns {void}
  */

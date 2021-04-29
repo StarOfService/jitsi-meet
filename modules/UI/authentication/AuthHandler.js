@@ -1,5 +1,7 @@
 /* global APP, config, JitsiMeetJS, Promise */
 
+import Logger from 'jitsi-meet-logger';
+
 import { openConnection } from '../../../connection';
 import { setJWT } from '../../../react/features/base/jwt';
 import {
@@ -9,7 +11,7 @@ import UIUtil from '../util/UIUtil';
 
 import LoginDialog from './LoginDialog';
 
-const logger = require('jitsi-meet-logger').getLogger(__filename);
+const logger = Logger.getLogger(__filename);
 
 let externalAuthWindow;
 let authRequiredDialog;
@@ -61,7 +63,7 @@ function doExternalAuth(room, lockPassword) {
 
 /**
  * Redirect the user to the token authentication service for the login to be
- * performed. Once complete it is expected that the service wil bring the user
+ * performed. Once complete it is expected that the service will bring the user
  * back with "?jwt={the JWT token}" query parameter added.
  * @param {string} [roomName] the name of the conference room.
  */
@@ -74,7 +76,7 @@ function redirectToTokenAuthService(roomName) {
 /**
  * Initializes 'message' listener that will wait for a JWT token to be received
  * from the token authentication service opened in a popup window.
- * @param room the name fo the conference room.
+ * @param room the name of the conference room.
  */
 function initJWTTokenListener(room) {
     /**
@@ -106,7 +108,7 @@ function initJWTTokenListener(room) {
                     roomName, APP.conference._getConferenceOptions());
 
                 // Authenticate from the new connection to get
-                // the session-ID from the focus, which wil then be used
+                // the session-ID from the focus, which will then be used
                 // to upgrade current connection's user role
 
                 newRoom.room.moderator.authenticate()
@@ -114,7 +116,7 @@ function initJWTTokenListener(room) {
                     connection.disconnect();
 
                     // At this point we'll have session-ID stored in
-                    // the settings. It wil be used in the call below
+                    // the settings. It will be used in the call below
                     // to upgrade user's role
                     room.room.moderator.authenticate()
                         .then(() => {

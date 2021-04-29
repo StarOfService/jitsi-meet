@@ -16,11 +16,12 @@
  */
 
 #import "AppDelegate.h"
+#import "FIRUtilities.h"
 #import "Types.h"
 #import "ViewController.h"
 
-@import Fabric;
-@import JitsiMeet;
+@import Firebase;
+@import JitsiMeetSDK;
 
 @implementation AppDelegate
 
@@ -33,6 +34,7 @@
     jitsiMeet.universalLinkDomains = @[@"meet.jit.si", @"alpha.jitsi.net", @"beta.meet.jit.si"];
 
     jitsiMeet.defaultConferenceOptions = [JitsiMeetConferenceOptions fromBuilder:^(JitsiMeetConferenceOptionsBuilder *builder) {
+        [builder setFeatureFlag:@"resolution" withValue:@(360)];
         builder.serverURL = [NSURL URLWithString:@"https://meet.jit.si"];
         builder.welcomePageEnabled = YES;
 
@@ -43,7 +45,18 @@
 #endif
     }];
 
-    [jitsiMeet application:application didFinishLaunchingWithOptions:launchOptions];
+  [jitsiMeet application:application didFinishLaunchingWithOptions:launchOptions];
+
+    // Initialize Crashlytics and Firebase if a valid GoogleService-Info.plist file was provided.
+  if ([FIRUtilities appContainsRealServiceInfoPlist]) {
+        NSLog(@"Enabling Firebase");
+        [FIRApp configure];
+        // Crashlytics defaults to disabled with the FirebaseCrashlyticsCollectionEnabled Info.plist key.
+        [[FIRCrashlytics crashlytics] setCrashlyticsCollectionEnabled:![jitsiMeet isCrashReportingDisabled]];
+    }
+
+    ViewController *rootController = (ViewController *)self.window.rootViewController;
+    [jitsiMeet showSplashScreen:rootController.view];
 
     return YES;
 }
@@ -61,6 +74,27 @@
   continueUserActivity:(NSUserActivity *)userActivity
     restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *restorableObjects))restorationHandler {
 
+    if ([FIRUtilities appContainsRealServiceInfoPlist]) {
+        // 1. Attempt to handle Universal Links through Firebase in order to support
+        //    its Dynamic Links (which we utilize for the purposes of deferred deep
+        //    linking).
+        BOOL handled
+          = [[FIRDynamicLinks dynamicLinks]
+                handleUniversalLink:userActivity.webpageURL
+                         completion:^(FIRDynamicLink * _Nullable dynamicLink, NSError * _Nullable error) {
+           NSURL *firebaseUrl = [FIRUtilities extractURL:dynamicLink];
+           if (firebaseUrl != nil) {
+             userActivity.webpageURL = firebaseUrl;
+             [[JitsiMeet sharedInstance] application:application
+                                continueUserActivity:userActivity
+                                  restorationHandler:restorationHandler];
+           }
+        }];
+
+        if (handled) {
+          return handled;
+        }
+    }
 
     // 2. Default to plain old, non-Firebase-assisted Universal Links.
     return [[JitsiMeet sharedInstance] application:application
@@ -80,6 +114,14 @@
 
     NSURL *openUrl = url;
 
+    if ([FIRUtilities appContainsRealServiceInfoPlist]) {
+        // Process Firebase Dynamic Links
+        FIRDynamicLink *dynamicLink = [[FIRDynamicLinks dynamicLinks] dynamicLinkFromCustomSchemeURL:url];
+        NSURL *firebaseUrl = [FIRUtilities extractURL:dynamicLink];
+        if (firebaseUrl != nil) {
+            openUrl = firebaseUrl;
+        }
+    }
 
     return [[JitsiMeet sharedInstance] application:app
                                            openURL:openUrl

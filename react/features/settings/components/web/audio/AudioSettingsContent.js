@@ -2,12 +2,17 @@
 
 import React, { Component } from 'react';
 
-import AudioSettingsHeader from './AudioSettingsHeader';
 import { translate } from '../../../../base/i18n';
 import { IconMicrophoneEmpty, IconVolumeEmpty } from '../../../../base/icons';
-import { createLocalAudioTrack } from '../../../functions';
+import JitsiMeetJS from '../../../../base/lib-jitsi-meet';
+import { equals } from '../../../../base/redux';
+import { createLocalAudioTracks } from '../../../functions';
+
+import AudioSettingsHeader from './AudioSettingsHeader';
 import MicrophoneEntry from './MicrophoneEntry';
 import SpeakerEntry from './SpeakerEntry';
+
+const browser = JitsiMeetJS.util.browser;
 
 export type Props = {
 
@@ -52,14 +57,14 @@ export type Props = {
 type State = {
 
    /**
-    * An object containing the jitsiTrack and the error (if the case)
-    * for the microphone that is in use.
+    * An list of objects, each containing the microphone label, audio track, device id
+    * and track error if the case.
     */
-    currentMicData: Object
+    audioTracks: Object[]
 }
 
 /**
- * Implements a React {@link Component} which displayes a list of all
+ * Implements a React {@link Component} which displays a list of all
  * the audio input & output devices to choose from.
  *
  * @extends Component
@@ -80,10 +85,14 @@ class AudioSettingsContent extends Component<Props, State> {
         this._onSpeakerEntryClick = this._onSpeakerEntryClick.bind(this);
 
         this.state = {
-            currentMicData: {
-                error: false,
-                jitsiTrack: null
-            }
+            audioTracks: props.microphoneDevices.map(({ deviceId, label }) => {
+                return {
+                    deviceId,
+                    hasError: false,
+                    jitsiTrack: null,
+                    label
+                };
+            })
         };
     }
 
@@ -114,20 +123,13 @@ class AudioSettingsContent extends Component<Props, State> {
     /**
      * Renders a single microphone entry.
      *
-     * @param {Object} data - An object with the deviceId and label of the microphone.
+     * @param {Object} data - An object with the deviceId, jitsiTrack & label of the microphone.
      * @param {number} index - The index of the element, used for creating a key.
      * @returns {React$Node}
      */
     _renderMicrophoneEntry(data, index) {
-        const { deviceId, label } = data;
-        const key = `me-${index}`;
+        const { deviceId, label, jitsiTrack, hasError } = data;
         const isSelected = deviceId === this.props.currentMicDeviceId;
-        let jitsiTrack = null;
-        let hasError = false;
-
-        if (isSelected) {
-            ({ jitsiTrack, hasError } = this.state.currentMicData);
-        }
 
         return (
             <MicrophoneEntry
@@ -135,7 +137,7 @@ class AudioSettingsContent extends Component<Props, State> {
                 hasError = { hasError }
                 isSelected = { isSelected }
                 jitsiTrack = { jitsiTrack }
-                key = { key }
+                key = { `me-${index}` }
                 onClick = { this._onMicrophoneEntryClick }>
                 {label}
             </MicrophoneEntry>
@@ -165,50 +167,42 @@ class AudioSettingsContent extends Component<Props, State> {
     }
 
     /**
-     * Disposes the audio track for a given micData object.
-     *
-     * @param {Object} micData - The object holding the track.
-     * @returns {Promise<void>}
-     */
-    _disposeTrack(micData) {
-        const { jitsiTrack } = micData;
-
-        return jitsiTrack ? jitsiTrack.dispose() : Promise.resolve();
-    }
-
-    /**
-     * Updates the current microphone data.
-     * Disposes previously created track and creates a new one.
+     * Creates and updates the audio tracks.
      *
      * @returns {void}
      */
-    async _updateCurrentMicData() {
-        await this._disposeTrack(this.state.currentMicData);
+    async _setTracks() {
+        if (browser.isWebKitBased()) {
 
-        const currentMicData = await createLocalAudioTrack(
-            this.props.currentMicDeviceId,
-        );
+            // It appears that at the time of this writing, creating audio tracks blocks the browser's main thread for
+            // long time on safari. Wasn't able to confirm which part of track creation does the blocking exactly, but
+            // not creating the tracks seems to help and makes the UI much more responsive.
+            return;
+        }
 
-        // In case the component gets unmounted before the track is created
-        // avoid a leak by not setting the state
+        this._disposeTracks(this.state.audioTracks);
+
+        const audioTracks = await createLocalAudioTracks(this.props.microphoneDevices, 5000);
+
         if (this._componentWasUnmounted) {
-            this._disposeTrack(currentMicData);
+            this._disposeTracks(audioTracks);
         } else {
             this.setState({
-                currentMicData
+                audioTracks
             });
         }
     }
 
     /**
-     * Implements React's {@link Component#componentDidUpdate}.
+     * Disposes the audio tracks.
      *
-     * @inheritdoc
+     * @param {Object} audioTracks - The object holding the audio tracks.
+     * @returns {void}
      */
-    componentDidUpdate(prevProps) {
-        if (prevProps.currentMicDeviceId !== this.props.currentMicDeviceId) {
-            this._updateCurrentMicData();
-        }
+    _disposeTracks(audioTracks) {
+        audioTracks.forEach(({ jitsiTrack }) => {
+            jitsiTrack && jitsiTrack.dispose();
+        });
     }
 
     /**
@@ -217,7 +211,7 @@ class AudioSettingsContent extends Component<Props, State> {
      * @inheritdoc
      */
     componentDidMount() {
-        this._updateCurrentMicData();
+        this._setTracks();
     }
 
     /**
@@ -227,8 +221,20 @@ class AudioSettingsContent extends Component<Props, State> {
      */
     componentWillUnmount() {
         this._componentWasUnmounted = true;
-        this._disposeTrack(this.state.currentMicData);
+        this._disposeTracks(this.state.audioTracks);
     }
+
+    /**
+     * Implements React's {@link Component#componentDidUpdate}.
+     *
+     * @inheritdoc
+     */
+    componentDidUpdate(prevProps) {
+        if (!equals(this.props.microphoneDevices, prevProps.microphoneDevices)) {
+            this._setTracks();
+        }
+    }
+
 
     /**
      * Implements React's {@link Component#render}.
@@ -236,7 +242,7 @@ class AudioSettingsContent extends Component<Props, State> {
      * @inheritdoc
      */
     render() {
-        const { microphoneDevices, outputDevices, t } = this.props;
+        const { outputDevices, t } = this.props;
 
         return (
             <div>
@@ -244,12 +250,18 @@ class AudioSettingsContent extends Component<Props, State> {
                     <AudioSettingsHeader
                         IconComponent = { IconMicrophoneEmpty }
                         text = { t('settings.microphones') } />
-                    {microphoneDevices.map((data, i) =>
+                    {this.state.audioTracks.map((data, i) =>
                         this._renderMicrophoneEntry(data, i),
                     )}
-                    <AudioSettingsHeader
-                        IconComponent = { IconVolumeEmpty }
-                        text = { t('settings.speakers') } />
+                    { outputDevices.length > 0 && (
+                        <>
+                            <hr className = 'audio-preview-hr' />
+                            <AudioSettingsHeader
+                                IconComponent = { IconVolumeEmpty }
+                                text = { t('settings.speakers') } />
+                        </>
+                    )
+                    }
                     {outputDevices.map((data, i) =>
                         this._renderSpeakerEntry(data, i),
                     )}

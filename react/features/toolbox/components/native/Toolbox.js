@@ -1,22 +1,24 @@
 // @flow
 
-import React, { PureComponent } from "react";
-import { View } from "react-native";
+import React from "react";
+import { SafeAreaView, View } from "react-native";
 
 import { ColorSchemeRegistry } from "../../../base/color-scheme";
-import { Container } from "../../../base/react";
 import { connect } from "../../../base/redux";
 import { StyleType } from "../../../base/styles";
 import { ChatButton } from "../../../chat";
-
-import { isToolboxVisible } from "../../functions";
-
+import { InviteButton } from "../../../invite";
+import { TileViewButton } from "../../../video-layout";
+import { isToolboxVisible, getMovableButtons } from "../../functions.native";
 import AudioMuteButton from "../AudioMuteButton";
+import CollapseVideoButton from '../CollapseVideoButton'
 import HangupButton from "../HangupButton";
+import VideoMuteButton from "../VideoMuteButton";
 
 import OverflowMenuButton from "./OverflowMenuButton";
+import RaiseHandButton from "./RaiseHandButton";
+import ToggleCameraButton from "./ToggleCameraButton";
 import styles from "./styles";
-import VideoMuteButton from "../VideoMuteButton";
 
 /**
  * The type of {@link Toolbox}'s React {@code Component} props.
@@ -33,106 +35,82 @@ type Props = {
     _visible: boolean,
 
     /**
+     * The width of the screen.
+     */
+    _width: number,
+
+    /**
      * The redux {@code dispatch} function.
      */
     dispatch: Function,
 };
 
 /**
- * Implements the conference toolbox on React Native.
+ * Implements the conference Toolbox on React Native.
+ *
+ * @param {Object} props - The props of the component.
+ * @returns {React$Element}.
  */
-class Toolbox extends PureComponent<Props> {
-    /**
-     * Implements React's {@link Component#render()}.
-     *
-     * @inheritdoc
-     * @returns {ReactElement}
-     */
-    render() {
-        return (
-            <Container style={styles.toolbox} visible={this.props._visible}>
-                {this._renderToolbar()}
-            </Container>
-        );
+function Toolbox(props: Props) {
+    if (!props._visible) {
+        return null;
     }
 
-    /**
-     * Constructs the toggled style of the chat button. This cannot be done by
-     * simple style inheritance due to the size calculation done in this
-     * component.
-     *
-     * @param {Object} baseStyle - The base style that was originally
-     * calculated.
-     * @returns {Object | Array}
-     */
-    _getChatButtonToggledStyle(baseStyle) {
-        const { _styles } = this.props;
-
-        if (Array.isArray(baseStyle.style)) {
-            return {
-                ...baseStyle,
-                style: [...baseStyle.style, _styles.chatButtonOverride.toggled],
-            };
-        }
-
-        return {
-            ...baseStyle,
-            style: [baseStyle.style, _styles.chatButtonOverride.toggled],
-        };
-    }
-
-    /**
-     * Renders the toolbar. In order to avoid a weird visual effect in which the
-     * toolbar is (visually) rendered and then visibly changes its size, it is
-     * rendered only after we've figured out the width available to the toolbar.
-     *
-     * @returns {React$Node}
-     */
-    _renderToolbar() {
-        const { _styles, onPIP } = this.props;
-        const {
-            buttonStyles,
-            buttonStylesBorderless,
-            hangupButtonStyles,
-            toggledButtonStyles,
-        } = _styles;
-
-        let optionsBtnStyles = buttonStylesBorderless;
-        optionsBtnStyles.style.marginHorizontal = 5;
-        optionsBtnStyles.style.width = 20
-
-        return (
-            <View
+    const { _styles, _width } = props;
+    const {
+        buttonStylesBorderless,
+        hangupButtonStyles,
+        toggledButtonStyles,
+    } = _styles;
+    const additionalButtons = getMovableButtons(_width);
+    const backgroundToggledStyle = {
+        ...toggledButtonStyles,
+        style: [toggledButtonStyles.style, _styles.backgroundToggle],
+    };
+    return (
+        <View pointerEvents="box-none" style={styles.toolboxContainer}>
+            <SafeAreaView
                 accessibilityRole="toolbar"
                 pointerEvents="box-none"
-                style={[styles.toolbar, { position: 'relative' }]}
+                style={styles.toolbox}
             >
-                {/* <ChatButton
-                    styles = { buttonStylesBorderless }
-                    toggledStyles = { this._getChatButtonToggledStyle(toggledButtonStyles) } /> */}
-                <View
-                    style={[{ justifyContent: 'center', flexDirection: 'row', position: 'relative' }]}
-                >
-                    <VideoMuteButton
-                        styles={buttonStyles}
-                        toggledStyles={toggledButtonStyles}
-                    />
-                    <AudioMuteButton
-                        styles={buttonStyles}
-                        toggledStyles={toggledButtonStyles}
-                    />
-                    <HangupButton styles={hangupButtonStyles} />
-                    <View style={{ position: 'absolute', right: -48, top:  0}}>
-                        <OverflowMenuButton
-                            onPIP={onPIP}
-                            styles = { buttonStylesBorderless }
-                            toggledStyles = { toggledButtonStyles } />
-                    </View>
-                </View>
+                {/* <HangupButton styles={hangupButtonStyles} /> */}
+                <VideoMuteButton
+                    styles={buttonStylesBorderless}
+                    toggledStyles={toggledButtonStyles}
+                />
+                <AudioMuteButton
+                    styles={buttonStylesBorderless}
+                    toggledStyles={toggledButtonStyles}
+                />
+                <CollapseVideoButton
+                    styles={buttonStylesBorderless}
+                    toggledStyles={toggledButtonStyles}
+                />
+                {/* { additionalButtons.has('chat')
+                      && <ChatButton
+                          styles = { buttonStylesBorderless }
+                          toggledStyles = { backgroundToggledStyle } />}
 
-            </View>
-        );
-    }
+                { additionalButtons.has('raisehand')
+                      && <RaiseHandButton
+                          styles = { buttonStylesBorderless }
+                          toggledStyles = { backgroundToggledStyle } />}
+                {additionalButtons.has('tileview') && <TileViewButton styles = { buttonStylesBorderless } />}
+                {additionalButtons.has('invite') && <InviteButton styles = { buttonStylesBorderless } />}
+                {additionalButtons.has('togglecamera')
+                      && <ToggleCameraButton
+                          styles = { buttonStylesBorderless }
+                          toggledStyles = { backgroundToggledStyle } />} */}
+                {/* <ToggleCameraButton
+                          styles = { buttonStylesBorderless }
+                          toggledStyles = { backgroundToggledStyle } /> */}
+                {/* <OverflowMenuButton
+                    styles = { buttonStylesBorderless }
+                    toggledStyles = { toggledButtonStyles } /> */}
+            </SafeAreaView>
+        </View>
+    );
 }
 
 /**
@@ -148,6 +126,7 @@ function _mapStateToProps(state: Object): Object {
     return {
         _styles: ColorSchemeRegistry.get(state, "Toolbox"),
         _visible: isToolboxVisible(state),
+        _width: state["features/base/responsive-ui"].clientWidth,
     };
 }
 

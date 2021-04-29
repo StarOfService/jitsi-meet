@@ -5,11 +5,12 @@ import { Immersive } from 'react-native-immersive';
 import { APP_WILL_MOUNT, APP_WILL_UNMOUNT } from '../../base/app';
 import { getCurrentConference } from '../../base/conference';
 import { isAnyDialogOpen } from '../../base/dialog/functions';
+import { FULLSCREEN_ENABLED, getFeatureFlag } from '../../base/flags';
 import { Platform } from '../../base/react';
 import { MiddlewareRegistry, StateListenerRegistry } from '../../base/redux';
 
-import { _setImmersiveListener as _setImmersiveListenerA } from './actions';
 import { _SET_IMMERSIVE_LISTENER } from './actionTypes';
+import { _setImmersiveListener as _setImmersiveListenerA } from './actions';
 
 /**
  * Middleware that captures conference actions and activates or deactivates the
@@ -24,8 +25,8 @@ import { _SET_IMMERSIVE_LISTENER } from './actionTypes';
  */
 MiddlewareRegistry.register(store => next => action => {
     switch (action.type) {
-    // case _SET_IMMERSIVE_LISTENER:
-    //     return _setImmersiveListenerF(store, next, action);
+    case _SET_IMMERSIVE_LISTENER:
+        return _setImmersiveListenerF(store, next, action);
 
     case APP_WILL_MOUNT: {
         const result = next(action);
@@ -50,8 +51,9 @@ StateListenerRegistry.register(
         const { enabled: audioOnly } = state['features/base/audio-only'];
         const conference = getCurrentConference(state);
         const dialogOpen = isAnyDialogOpen(state);
+        const fullscreenEnabled = getFeatureFlag(state, FULLSCREEN_ENABLED, true);
 
-        return conference ? !audioOnly && !dialogOpen : false;
+        return conference ? !audioOnly && !dialogOpen && fullscreenEnabled : false;
     },
     /* listener */ fullScreen => _setFullScreen(fullScreen)
 );
@@ -91,9 +93,9 @@ function _onImmersiveChange({ getState }) {
 function _setFullScreen(fullScreen: boolean) {
     // XXX The React Native module Immersive is only implemented on Android and
     // throws on other platforms.
-    // if (Platform.OS === 'android') {
-    //     fullScreen ? Immersive.on() : Immersive.off();
-    // }
+    if (Platform.OS === 'android') {
+        fullScreen ? Immersive.on() : Immersive.off();
+    }
 }
 
 /**

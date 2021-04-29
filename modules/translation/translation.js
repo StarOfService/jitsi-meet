@@ -1,6 +1,6 @@
 /* @flow */
 
-import jqueryI18next from 'jquery-i18next';
+// import jqueryI18next from 'jquery-i18next';
 
 import { i18next } from '../../react/features/base/i18n';
 
@@ -24,7 +24,7 @@ class Translation {
      *
      */
     constructor() {
-        jqueryI18next.init(i18next, $, { useOptionsAttr: true });
+        // jqueryI18next.init(i18next, $, { useOptionsAttr: true });
 
         if (i18next.isInitialized) {
             _onI18nInitialized();

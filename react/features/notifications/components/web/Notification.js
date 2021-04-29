@@ -8,9 +8,7 @@ import { colors } from '@atlaskit/theme';
 import React from 'react';
 
 import { translate } from '../../../base/i18n';
-
 import { NOTIFICATION_TYPE } from '../../constants';
-
 import AbstractNotification, {
     type Props
 } from '../AbstractNotification';
@@ -46,8 +44,6 @@ class Notification extends AbstractNotification<Props> {
         const {
             appearance,
             hideErrorSupportLink,
-            isDismissAllowed,
-            onDismissed,
             t,
             title,
             titleArguments,
@@ -62,13 +58,14 @@ class Notification extends AbstractNotification<Props> {
                 description = { this._renderDescription() }
                 icon = { this._mapAppearanceToIcon() }
                 id = { uid }
-                isDismissAllowed = { isDismissAllowed }
-                onDismissed = { onDismissed }
+                testId = { titleKey }
                 title = { title || t(titleKey, titleArguments) } />
         );
     }
 
     _getDescription: () => Array<string>
+
+    _getDescriptionKey: () => string
 
     _onDismissed: () => void;
 
@@ -80,11 +77,12 @@ class Notification extends AbstractNotification<Props> {
      * @returns {ReactElement}
      */
     _renderDescription() {
+        const description = this._getDescription();
+
+        // the id is used for testing the UI
         return (
-            <div>
-                {
-                    this._getDescription()
-                }
+            <div data-testid = { this._getDescriptionKey() } >
+                { description }
             </div>
         );
     }

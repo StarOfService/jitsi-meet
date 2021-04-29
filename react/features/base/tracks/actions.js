@@ -1,17 +1,21 @@
+/* global APP */
+
 import {
     createTrackMutedEvent,
     sendAnalytics
 } from '../../analytics';
-import { JitsiTrackErrors, JitsiTrackEvents } from '../lib-jitsi-meet';
 import { showErrorNotification, showNotification } from '../../notifications';
+import { JitsiTrackErrors, JitsiTrackEvents, createLocalTrack } from '../lib-jitsi-meet';
 import {
     CAMERA_FACING_MODE,
     MEDIA_TYPE,
     setAudioMuted,
     setVideoMuted,
-    VIDEO_MUTISM_AUTHORITY
+    VIDEO_MUTISM_AUTHORITY,
+    VIDEO_TYPE
 } from '../media';
 import { getLocalParticipant } from '../participants';
+import { updateSettings } from '../settings';
 
 import {
     SET_NO_SRC_DATA_NOTIFICATION_UID,
@@ -21,10 +25,18 @@ import {
     TRACK_CREATE_ERROR,
     TRACK_NO_DATA_FROM_SOURCE,
     TRACK_REMOVED,
+    TRACK_STOPPED,
     TRACK_UPDATED,
+    TRACK_UPDATE_LAST_VIDEO_MEDIA_EVENT,
     TRACK_WILL_CREATE
 } from './actionTypes';
-import { createLocalTracksF, getLocalTrack, getLocalTracks, getTrackByJitsiTrack } from './functions';
+import {
+    createLocalTracksF,
+    getLocalTrack,
+    getLocalTracks,
+    getLocalVideoTrack,
+    getTrackByJitsiTrack
+} from './functions';
 import logger from './logger';
 
 /**
@@ -39,6 +51,8 @@ import logger from './logger';
 export function createDesiredLocalTracks(...desiredTypes) {
     return (dispatch, getState) => {
         const state = getState();
+
+        dispatch(destroyLocalDesktopTrackIfExists());
 
         if (desiredTypes.length === 0) {
             const { audio, video } = state['features/base/media'];
@@ -117,7 +131,6 @@ export function createLocalTracksA(options = {}) {
                             options.facingMode || CAMERA_FACING_MODE.USER,
                         micDeviceId: options.micDeviceId
                     },
-                    /* firePermissionPromptIsShownEvent */ false,
                     store)
                 .then(
                     localTracks => {
@@ -267,56 +280,70 @@ export function toggleScreensharing() {
  * @returns {Function}
  */
 export function replaceLocalTrack(oldTrack, newTrack, conference) {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         conference
 
             // eslint-disable-next-line no-param-reassign
             || (conference = getState()['features/base/conference'].conference);
 
-        return conference.replaceTrack(oldTrack, newTrack)
+        if (conference) {
+            await conference.replaceTrack(oldTrack, newTrack);
+        }
+
+        return dispatch(replaceStoredTracks(oldTrack, newTrack));
+    };
+}
+
+/**
+ * Replaces a stored track with another.
+ *
+ * @param {JitsiLocalTrack|null} oldTrack - The track to dispose.
+ * @param {JitsiLocalTrack|null} newTrack - The track to use instead.
+ * @returns {Function}
+ */
+function replaceStoredTracks(oldTrack, newTrack) {
+    return dispatch => {
+        // We call dispose after doing the replace because dispose will
+        // try and do a new o/a after the track removes itself. Doing it
+        // after means the JitsiLocalTrack.conference is already
+        // cleared, so it won't try and do the o/a.
+        const disposePromise
+              = oldTrack
+                  ? dispatch(_disposeAndRemoveTracks([ oldTrack ]))
+                  : Promise.resolve();
+
+        return disposePromise
             .then(() => {
-                // We call dispose after doing the replace because dispose will
-                // try and do a new o/a after the track removes itself. Doing it
-                // after means the JitsiLocalTrack.conference is already
-                // cleared, so it won't try and do the o/a.
-                const disposePromise
-                    = oldTrack
-                        ? dispatch(_disposeAndRemoveTracks([ oldTrack ]))
-                        : Promise.resolve();
+                if (newTrack) {
+                    // The mute state of the new track should be
+                    // reflected in the app's mute state. For example,
+                    // if the app is currently muted and changing to a
+                    // new track that is not muted, the app's mute
+                    // state should be falsey. As such, emit a mute
+                    // event here to set up the app to reflect the
+                    // track's mute state. If this is not done, the
+                    // current mute state of the app will be reflected
+                    // on the track, not vice-versa.
+                    const setMuted
+                          = newTrack.isVideoTrack()
+                              ? setVideoMuted
+                              : setAudioMuted;
+                    const isMuted = newTrack.isMuted();
 
-                return disposePromise
-                    .then(() => {
-                        if (newTrack) {
-                            // The mute state of the new track should be
-                            // reflected in the app's mute state. For example,
-                            // if the app is currently muted and changing to a
-                            // new track that is not muted, the app's mute
-                            // state should be falsey. As such, emit a mute
-                            // event here to set up the app to reflect the
-                            // track's mute state. If this is not done, the
-                            // current mute state of the app will be reflected
-                            // on the track, not vice-versa.
-                            const setMuted
-                                = newTrack.isVideoTrack()
-                                    ? setVideoMuted
-                                    : setAudioMuted;
-                            const isMuted = newTrack.isMuted();
+                    sendAnalytics(createTrackMutedEvent(
+                        newTrack.getType(),
+                        'track.replaced',
+                        isMuted));
+                    logger.log(`Replace ${newTrack.getType()} track - ${
+                        isMuted ? 'muted' : 'unmuted'}`);
 
-                            sendAnalytics(createTrackMutedEvent(
-                                newTrack.getType(),
-                                'track.replaced',
-                                isMuted));
-                            logger.log(`Replace ${newTrack.getType()} track - ${
-                                isMuted ? 'muted' : 'unmuted'}`);
-
-                            return dispatch(setMuted(isMuted));
-                        }
-                    })
-                    .then(() => {
-                        if (newTrack) {
-                            return dispatch(_addTracks([ newTrack ]));
-                        }
-                    });
+                    return dispatch(setMuted(isMuted));
+                }
+            })
+            .then(() => {
+                if (newTrack) {
+                    return dispatch(_addTracks([ newTrack ]));
+                }
             });
     };
 }
@@ -374,8 +401,15 @@ export function trackAdded(track) {
 
                     noDataFromSourceNotificationInfo = { timeout };
                 }
-
             }
+
+            track.on(JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                () => dispatch({
+                    type: TRACK_STOPPED,
+                    track: {
+                        jitsiTrack: track
+                    }
+                }));
         } else {
             participantId = track.getParticipantId();
             isReceivingData = true;
@@ -575,26 +609,20 @@ function _disposeTracks(tracks) {
  * Implements the {@code Promise} rejection handler of
  * {@code createLocalTracksA} and {@code createLocalTracksF}.
  *
- * @param {Object} reason - The {@code Promise} rejection reason.
+ * @param {Object} error - The {@code Promise} rejection reason.
  * @param {string} device - The device/{@code MEDIA_TYPE} associated with the
  * rejection.
  * @private
  * @returns {Function}
  */
-function _onCreateLocalTracksRejected({ gum }, device) {
+function _onCreateLocalTracksRejected(error, device) {
     return dispatch => {
         // If permissions are not allowed, alert the user.
-        if (gum) {
-            const { error } = gum;
-
-            if (error) {
-                dispatch({
-                    type: TRACK_CREATE_ERROR,
-                    permissionDenied: error.name === 'SecurityError',
-                    trackType: device
-                });
-            }
-        }
+        dispatch({
+            type: TRACK_CREATE_ERROR,
+            permissionDenied: error?.name === 'SecurityError',
+            trackType: device
+        });
     };
 }
 
@@ -650,6 +678,22 @@ function _trackCreateCanceled(mediaType) {
 }
 
 /**
+ * If thee local track if of type Desktop, it calls _disposeAndRemoveTracks) on it.
+ *
+ * @returns {Function}
+ */
+export function destroyLocalDesktopTrackIfExists() {
+    return (dispatch, getState) => {
+        const videoTrack = getLocalVideoTrack(getState()['features/base/tracks']);
+        const isDesktopTrack = videoTrack && videoTrack.videoType === VIDEO_TYPE.DESKTOP;
+
+        if (isDesktopTrack) {
+            dispatch(_disposeAndRemoveTracks([ videoTrack.jitsiTrack ]));
+        }
+    };
+}
+
+/**
  * Sets UID of the displayed no data from source notification. Used to track
  * if the notification was previously displayed in this context.
  *
@@ -663,5 +707,59 @@ export function setNoSrcDataNotificationUid(uid) {
     return {
         type: SET_NO_SRC_DATA_NOTIFICATION_UID,
         uid
+    };
+}
+
+/**
+ * Updates the last media event received for a video track.
+ *
+ * @param {JitsiRemoteTrack} track - JitsiTrack instance.
+ * @param {string} name - The current media event name for the video.
+ * @returns {{
+ *     type: TRACK_UPDATE_LAST_VIDEO_MEDIA_EVENT,
+ *     track: Track,
+ *     name: string
+ * }}
+ */
+export function updateLastTrackVideoMediaEvent(track, name) {
+    return {
+        type: TRACK_UPDATE_LAST_VIDEO_MEDIA_EVENT,
+        track,
+        name
+    };
+}
+
+/**
+ * Toggles the facingMode constraint on the video stream.
+ *
+ * @returns {Function}
+ */
+export function toggleCamera() {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const tracks = state['features/base/tracks'];
+        const localVideoTrack = getLocalVideoTrack(tracks).jitsiTrack;
+        const currentFacingMode = localVideoTrack.getCameraFacingMode();
+
+        /**
+         * FIXME: Ideally, we should be dispatching {@code replaceLocalTrack} here,
+         * but it seems to not trigger the re-rendering of the local video on Chrome;
+         * could be due to a plan B vs unified plan issue. Therefore, we use the legacy
+         * method defined in conference.js that manually takes care of updating the local
+         * video as well.
+         */
+        await APP.conference.useVideoStream(null);
+
+        const targetFacingMode = currentFacingMode === CAMERA_FACING_MODE.USER
+            ? CAMERA_FACING_MODE.ENVIRONMENT
+            : CAMERA_FACING_MODE.USER;
+
+        // Update the flipX value so the environment facing camera is not flipped, before the new track is created.
+        dispatch(updateSettings({ localFlipX: targetFacingMode === CAMERA_FACING_MODE.USER }));
+
+        const newVideoTrack = await createLocalTrack('video', null, null, { facingMode: targetFacingMode });
+
+        // FIXME: See above.
+        await APP.conference.useVideoStream(newVideoTrack);
     };
 }

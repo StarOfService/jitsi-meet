@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react';
+
 import { Icon } from '../../../../base/icons';
 
 /**
@@ -29,7 +30,7 @@ export default function AudioSettingsHeader({ IconComponent, text }: Props) {
         <div className = 'audio-preview-header'>
             <div className = 'audio-preview-header-icon'>
                 { <Icon
-                    size = { 24 }
+                    size = { 20 }
                     src = { IconComponent } />}
             </div>
             <div className = 'audio-preview-header-text'>{text}</div>

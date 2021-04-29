@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 
+import { YoutubeLargeVideo } from '../../../shared-video/components';
 import { Avatar } from '../../avatar';
 import { translate } from '../../i18n';
 import { JitsiParticipantConnectionStatus } from '../../lib-jitsi-meet';
@@ -15,8 +16,8 @@ import { connect } from '../../redux';
 import type { StyleType } from '../../styles';
 import { TestHint } from '../../testing/components';
 import { getTrackByMediaTypeAndParticipant } from '../../tracks';
+import { shouldRenderParticipantVideo, getParticipantById } from '../functions';
 
-import { shouldRenderParticipantVideo } from '../functions';
 import styles from './styles';
 
 /**
@@ -32,6 +33,13 @@ type Props = {
      * @private
      */
     _connectionStatus: string,
+
+    /**
+     * True if the participant which this component represents is fake.
+     *
+     * @private
+     */
+    _isFakeParticipant: boolean,
 
     /**
      * The name of the participant which this component represents.
@@ -128,7 +136,6 @@ type Props = {
  * @extends Component
  */
 class ParticipantView extends Component<Props> {
-
     /**
      * Renders the connection status label, if appropriate.
      *
@@ -181,8 +188,10 @@ class ParticipantView extends Component<Props> {
     render() {
         const {
             _connectionStatus: connectionStatus,
+            _isFakeParticipant,
             _renderVideo: renderVideo,
             _videoTrack: videoTrack,
+            disableVideo,
             onPress,
             tintStyle
         } = this.props;
@@ -198,32 +207,41 @@ class ParticipantView extends Component<Props> {
                 ? this.props.testHintId
                 : `org.jitsi.meet.Participant#${this.props.participantId}`;
 
+        const renderYoutubeLargeVideo = _isFakeParticipant && !disableVideo;
+
         return (
             <Container
-                onClick = { renderVideo ? undefined : onPress }
+                // onClick = { renderVideo || renderYoutubeLargeVideo ? undefined : onPress }
                 style = {{
                     ...styles.participantView,
                     ...this.props.style,
+                    backgroundColor: '#141C1E',
+                    flex: 1
                 }}
                 touchFeedback = { false }>
 
-                <TestHint
+                {/* <TestHint
                     id = { testHintId }
-                    onPress = { onPress }
-                    value = '' />
+                    onPress = { renderYoutubeLargeVideo ? undefined : onPress }
+                    value = '' /> */}
 
-                { renderVideo
-                    && <VideoTrack
+                {/* { renderYoutubeLargeVideo && <YoutubeLargeVideo youtubeId = { this.props.participantId } /> } */}
+
+                { (!_isFakeParticipant && renderVideo) &&
+                    <VideoTrack
                         onPress = { onPress }
                         videoTrack = { videoTrack }
                         waitForVideoStarted = { false }
                         zOrder = { this.props.zOrder }
                         zoomEnabled = { this.props.zoomEnabled } /> }
 
-                { !renderVideo
-                    && <Avatar
-                    participantId = { this.props.participantId }
-                    size = { this.props.avatarSize } /> }
+                 { !renderYoutubeLargeVideo && !renderVideo
+                    && <View style = { styles.avatarContainer }>
+                        <Avatar
+                            participantId = { this.props.participantId }
+                            size = { this.props.avatarSize } />
+                    </View> }
+    {/* } */}
 
                 { useTint
 
@@ -251,6 +269,7 @@ class ParticipantView extends Component<Props> {
  */
 function _mapStateToProps(state, ownProps) {
     const { disableVideo, participantId } = ownProps;
+    const participant = getParticipantById(state, participantId);
     let connectionStatus;
     let participantName;
 
@@ -258,6 +277,7 @@ function _mapStateToProps(state, ownProps) {
         _connectionStatus:
             connectionStatus
                 || JitsiParticipantConnectionStatus.ACTIVE,
+        _isFakeParticipant: participant && participant.isFakeParticipant,
         _participantName: participantName,
         _renderVideo: shouldRenderParticipantVideo(state, participantId) && !disableVideo,
         _videoTrack:

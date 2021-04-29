@@ -11,17 +11,16 @@ const BUTTON_SIZE = 50;
  * The style of toolbar buttons.
  */
 const toolbarButton = {
-    backgroundColor: 'rgba(20, 28, 30, 1)',
-    borderRadius: BUTTON_SIZE / 2,
-    borderWidth: 0,
+    backgroundColor: '#F9F9F9',
+    borderColor: '#CFD3DA',
+    borderRadius: 110,
+    borderWidth: 1,
     flex: 0,
     flexDirection: 'row',
     height: BUTTON_SIZE,
     justifyContent: 'center',
-
-    // XXX We probably tested BoxModel.margin and discovered it to be too small
-    // for our taste.
-    marginHorizontal: 7,
+    marginHorizontal: 7.5,
+    marginTop: 15,
     width: BUTTON_SIZE
 };
 
@@ -31,23 +30,16 @@ const toolbarButton = {
 const toolbarButtonIcon = {
     alignSelf: 'center',
     color: ColorPalette.darkGrey,
-    fontSize: 22
+    fontSize: 24
 };
 
-/**
- * The style of toolbar buttons which display white icons.
- */
-const whiteToolbarButton = {
-    ...toolbarButton,
-    // backgroundColor: schemeColor('buttonToggled')
-};
 
 /**
  * The icon style of toolbar buttons which display white icons.
  */
 const whiteToolbarButtonIcon = {
     ...toolbarButtonIcon,
-    color: ColorPalette.red
+    color: '#000'//ColorPalette.white
 };
 
 /**
@@ -70,21 +62,30 @@ const styles = {
     /**
      * The style of the toolbar.
      */
-    toolbar: {
+    toolbox: {
         alignItems: 'center',
+        // backgroundColor: ColorPalette.darkBackground,
+        borderTopLeftRadius: 3,
+        borderTopRightRadius: 3,
         flexDirection: 'row',
         flexGrow: 0,
         justifyContent: 'center',
-        marginBottom: BoxModel.margin / 2,
-        paddingHorizontal: BoxModel.margin
+        // justifyContent: 'space-between',
+        paddingHorizontal: BoxModel.margin,
+        // paddingVertical: 8
     },
 
     /**
-     * The style of the root/top-level {@link Container} of {@link Toolbox}.
+     * The style of the root/top-level container of {@link Toolbox}.
      */
-    toolbox: {
+    toolboxContainer: {
         flexDirection: 'column',
-        flexGrow: 0
+        flexGrow: 0,
+        width: '100%',
+        maxWidth: 500,
+        marginBottom: 2,
+        marginLeft: 'auto',
+        marginRight: 'auto'
     }
 };
 
@@ -106,25 +107,19 @@ ColorSchemeRegistry.register('Toolbox', {
         iconStyle: whiteToolbarButtonIcon,
         style: {
             ...toolbarButton,
-            backgroundColor: 'transparent'
+            // backgroundColor: 'transparent'
         }
     },
 
-    /**
-     * Overrides to the standard styles that we apply to the chat button, as
-     * that behaves slightly differently to other buttons.
-     */
-    chatButtonOverride: {
-        toggled: {
-            backgroundColor: ColorPalette.blue
-        }
+    backgroundToggle: {
+        backgroundColor: ColorPalette.toggled
     },
 
     hangupButtonStyles: {
         iconStyle: whiteToolbarButtonIcon,
         style: {
             ...toolbarButton,
-            backgroundColor: schemeColor('hangup'),
+            backgroundColor: schemeColor('hangup')
         },
         underlayColor: ColorPalette.buttonUnderlay
     },
@@ -135,9 +130,7 @@ ColorSchemeRegistry.register('Toolbox', {
     toggledButtonStyles: {
         iconStyle: whiteToolbarButtonIcon,
         style: {
-            ...whiteToolbarButton,
-            //borderColor: schemeColor('buttonToggledBorder'),
-            //borderWidth: 1
+            ...toolbarButton
         }
     }
 });

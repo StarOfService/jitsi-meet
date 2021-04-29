@@ -1,6 +1,8 @@
 /* global __dirname */
 
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 const process = require('process');
+const webpack = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 /**
@@ -11,6 +13,7 @@ const devServerProxyTarget
     = process.env.WEBPACK_DEV_SERVER_PROXY_TARGET || 'https://alpha.jitsi.net';
 
 const analyzeBundle = process.argv.indexOf('--analyze-bundle') !== -1;
+const detectCircularDeps = process.argv.indexOf('--detect-circular-deps') !== -1;
 
 const minimize
     = process.argv.indexOf('-p') !== -1
@@ -33,6 +36,7 @@ function getPerformanceHints(size) {
 const config = {
     devServer: {
         https: true,
+        host: '0.0.0.0',
         inline: true,
         proxy: {
             '/': {
@@ -53,7 +57,7 @@ const config = {
             // as well.
 
             exclude: [
-                new RegExp(`${__dirname}/node_modules/(?!js-utils)`)
+                new RegExp(`${__dirname}/node_modules/(?!@jitsi/js-utils)`)
             ],
             loader: 'babel-loader',
             options: {
@@ -100,7 +104,7 @@ const config = {
             // dependencies including lib-jitsi-meet.
 
             loader: 'expose-loader?$!expose-loader?jQuery',
-            test: /\/node_modules\/jquery\/.*\.js$/
+            test: /[/\\]node_modules[/\\]jquery[/\\].*\.js$/
         }, {
             // Allow CSS to be imported into JavaScript.
 
@@ -113,7 +117,8 @@ const config = {
             test: /\/node_modules\/@atlaskit\/modal-dialog\/.*\.js$/,
             resolve: {
                 alias: {
-                    'react-focus-lock': `${__dirname}/react/features/base/util/react-focus-lock-wrapper.js`
+                    'react-focus-lock': `${__dirname}/react/features/base/util/react-focus-lock-wrapper.js`,
+                    '../styled/Modal': `${__dirname}/react/features/base/dialog/components/web/ThemedDialog.js`
                 }
             }
         }, {
@@ -138,7 +143,11 @@ const config = {
         // Allow the use of the real filename of the module being executed. By
         // default Webpack does not leak path-related information and provides a
         // value that is a mock (/index.js).
-        __filename: true
+        __filename: true,
+
+        // Provide some empty Node modules (required by olm).
+        crypto: 'empty',
+        fs: 'empty'
     },
     optimization: {
         concatenateModules: minimize,
@@ -155,10 +164,17 @@ const config = {
             && new BundleAnalyzerPlugin({
                 analyzerMode: 'disabled',
                 generateStatsFile: true
+            }),
+        detectCircularDeps
+            && new CircularDependencyPlugin({
+                allowAsyncCycles: false,
+                exclude: /node_modules/,
+                failOnError: false
             })
     ].filter(Boolean),
     resolve: {
         alias: {
+            'focus-visible': 'focus-visible/dist/focus-visible.min.js',
             jquery: `jquery/dist/jquery${minimize ? '.min' : ''}.js`
         },
         aliasFields: [
@@ -179,13 +195,10 @@ module.exports = [
         entry: {
             'app.bundle': './app.js'
         },
-        performance: getPerformanceHints(3 * 1024 * 1024)
-    }),
-    Object.assign({}, config, {
-        entry: {
-            'device_selection_popup_bundle': './react/features/settings/popup.js'
-        },
-        performance: getPerformanceHints(700 * 1024)
+        plugins: [
+            new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+        ],
+        performance: getPerformanceHints(4 * 1024 * 1024)
     }),
     Object.assign({}, config, {
         entry: {
@@ -197,6 +210,9 @@ module.exports = [
         entry: {
             'dial_in_info_bundle': './react/features/invite/components/dial-in-info-page'
         },
+        plugins: [
+            new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+        ],
         performance: getPerformanceHints(500 * 1024)
     }),
     Object.assign({}, config, {
@@ -217,44 +233,11 @@ module.exports = [
         },
         performance: getPerformanceHints(5 * 1024)
     }),
-
-    // Because both video-blur-effect and rnnoise-processor modules are loaded
-    // in a lazy manner using the loadScript function with a hard coded name,
-    // i.e.loadScript('libs/rnnoise-processor.min.js'), webpack dev server
-    // won't know how to properly load them using the default config filename
-    // and sourceMapFilename parameters which target libs without .min in dev
-    // mode. Thus we change these modules to have the same filename in both
-    // prod and dev mode.
     Object.assign({}, config, {
         entry: {
-            'video-blur-effect': './react/features/stream-effects/blur/index.js'
+            'close3': './static/close3.js'
         },
-        output: Object.assign({}, config.output, {
-            library: [ 'JitsiMeetJS', 'app', 'effects' ],
-            libraryTarget: 'window',
-            filename: '[name].min.js',
-            sourceMapFilename: '[name].min.map'
-        }),
-        performance: getPerformanceHints(1 * 1024 * 1024)
-    }),
-
-    Object.assign({}, config, {
-        entry: {
-            'rnnoise-processor': './react/features/stream-effects/rnnoise/index.js'
-        },
-        node: {
-            // Emscripten generated glue code "rnnoise.js" expects node fs module,
-            // we need to specify this parameter so webpack knows how to properly
-            // interpret it when encountered.
-            fs: 'empty'
-        },
-        output: Object.assign({}, config.output, {
-            library: [ 'JitsiMeetJS', 'app', 'effects', 'rnnoise' ],
-            libraryTarget: 'window',
-            filename: '[name].min.js',
-            sourceMapFilename: '[name].min.map'
-        }),
-        performance: getPerformanceHints(30 * 1024)
+        performance: getPerformanceHints(128 * 1024)
     }),
 
     Object.assign({}, config, {
@@ -265,7 +248,7 @@ module.exports = [
             library: 'JitsiMeetExternalAPI',
             libraryTarget: 'umd'
         }),
-        performance: getPerformanceHints(30 * 1024)
+        performance: getPerformanceHints(35 * 1024)
     })
 ];
 
@@ -280,10 +263,13 @@ module.exports = [
  */
 function devServerProxyBypass({ path }) {
     if (path.startsWith('/css/') || path.startsWith('/doc/')
-            || path.startsWith('/fonts/') || path.startsWith('/images/')
+            || path.startsWith('/fonts/')
+            || path.startsWith('/images/')
+            || path.startsWith('/lang/')
             || path.startsWith('/sounds/')
             || path.startsWith('/static/')
             || path.endsWith('.wasm')) {
+
         return path;
     }
 
