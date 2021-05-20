@@ -165,7 +165,8 @@ class Conference extends AbstractConference<Props, *> {
      * @returns {ReactElement}
      */
     render() {
-        const { _fullscreenEnabled } = this.props;
+        // const { _fullscreenEnabled } = this.props;
+        const _fullscreenEnabled = false
 
         return (
             <Container style={styles.conference}>
