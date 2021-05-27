@@ -25,6 +25,8 @@ export default StyleSheet.create({
      * Make {@code Video} fill its container.
      */
     video: {
-        backgroundColor: '#000',
+        backgroundColor: '#141c1e',
+        justifyContent: 'center',
+        flex: 1
     }
 });

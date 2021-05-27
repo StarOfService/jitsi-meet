@@ -34,7 +34,7 @@ export default class Pressable extends Component<Props> {
 
         if (onPress) {
             return (
-                <TouchableWithoutFeedback onPress = { onPress }>
+                <TouchableWithoutFeedback onPress = { onPress } style={{justifyContent: 'center', alignContent: 'center', alignItems: 'center'}}>
                     { children }
                 </TouchableWithoutFeedback>
             );

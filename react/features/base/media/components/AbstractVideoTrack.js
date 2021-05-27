@@ -113,6 +113,7 @@ export default class AbstractVideoTrack<P: Props> extends Component<P> {
                 && videoTrack.videoType === 'desktop';
         return (
             <Video
+            isThumbnail={this.props.isThumbnail}
                 mirror = { videoTrack && videoTrack.mirror }
                 onPlaying = { this._onVideoPlaying }
                 onPress = { this.props.onPress }

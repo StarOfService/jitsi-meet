@@ -368,7 +368,7 @@ class Conference extends AbstractConference<Props, *> {
                         <SafeAreaView>
 
                                 <View style={styles.localVideoContainer}>
-                                    {/* <LocalThumbnail /> */}
+                                    <LocalThumbnail />
                                 </View>
 
                         </SafeAreaView>

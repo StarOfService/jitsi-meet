@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component } from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, View } from "react-native";
 import { RTCView } from "react-native-webrtc";
 
 import { Pressable } from "../../../react";
@@ -98,18 +98,27 @@ export default class Video extends Component<Props> {
                     streamURL={stream.toURL()}
                     style={[
                         style,
+                        this.props.isThumbnail ? {
+                            height: 123,
+                            width: 92
+                        }:
                         {
-                            height: Math.min(
+                            maxHeight: Math.min(
                                 videoDimensions?.height.ideal || height,
-                                height
+                                height,
+                                // 150
                             ),
-                            width: Math.min(
+                            maxWidth: Math.min(
                                 videoDimensions?.width.ideal || width,
-                                width
+                                width,
+                                // 300
                             ),
+                            minHeight: 144,
+                            minWidth: 244
                         },
                     ]}
                     zOrder={this.props.zOrder}
+                    zoomEnabled={true}
                 />
             );
 
@@ -133,7 +142,11 @@ export default class Video extends Component<Props> {
             // detection which is forgiving to imperceptible movements while
             // pressing. It's not acceptable to be so picky, especially when
             // "pinch to zoom" is not enabled.
-            return <Pressable onPress={onPress}>{rtcView}</Pressable>;
+            return <Pressable onPress={onPress}><View style={{
+                flex: 1,
+                justifyContent: 'center',
+            }}>{
+                rtcView}</View></Pressable>;
         }
 
         // RTCView has peculiarities which may or may not be platform specific.

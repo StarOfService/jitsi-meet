@@ -62,6 +62,7 @@ type Props = {
      * The avatar size.
      */
     avatarSize: number,
+    isThumbnail: ?boolean,
 
     /**
      * Whether video should be disabled for his view.
@@ -230,6 +231,7 @@ class ParticipantView extends Component<Props> {
 
                 { (!_isFakeParticipant && renderVideo) &&
                     <VideoTrack
+                    isThumbnail={this.props.isThumbnail}
                         onPress = { onPress }
                         videoTrack = { videoTrack }
                         waitForVideoStarted = { false }
