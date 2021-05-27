@@ -28,7 +28,6 @@ class LocalThumbnail extends Component<Props> {
      * @inheritdoc
      */
     render() {
-// console.log('Local Thumbbnail Props: ', this.props)
         // con
         const { _localParticipant } = this.props;
 

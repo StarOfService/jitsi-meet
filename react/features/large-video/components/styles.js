@@ -18,7 +18,7 @@ ColorSchemeRegistry.register('LargeVideo', {
     largeVideo: {
         ...StyleSheet.absoluteFillObject,
         alignItems: 'stretch',
-        // backgroundColor: '#141C1E',
+        backgroundColor: '#141C1E',
         flex: 1,
         justifyContent: 'center'
     }

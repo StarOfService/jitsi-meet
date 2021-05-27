@@ -368,7 +368,7 @@ class Conference extends AbstractConference<Props, *> {
                         <SafeAreaView>
 
                                 <View style={styles.localVideoContainer}>
-                                    <LocalThumbnail />
+                                    {/* <LocalThumbnail /> */}
                                 </View>
 
                         </SafeAreaView>
@@ -387,7 +387,7 @@ class Conference extends AbstractConference<Props, *> {
                         )} */}
                         {/* <LonelyMeetingExperience /> */}
                         {/* {this._renderParticipantName()} */}
-                        {/* {_shouldDisplayTileView ? undefined : <Filmstrip />} */}
+                        {/* {<Filmstrip />} */}
                         {this._renderToolbox()}
                     </View>
                 </View>
