@@ -1,7 +1,7 @@
 // @flow
 
 import { NativeModules, Platform } from 'react-native';
-import RNCalendarEvents from 'react-native-calendar-events';
+//import RNCalendarEvents from 'react-native-calendar-events';
 import type { Store } from 'redux';
 
 import { CALENDAR_ENABLED, getFeatureFlag } from '../base/flags';
@@ -25,28 +25,28 @@ export * from './functions.any';
 export function addLinkToCalendarEntry(
         state: Object, id: string, link: string): Promise<any> {
     return new Promise((resolve, reject) => {
-        getShareInfoText(state, link, true).then(shareInfoText => {
-            RNCalendarEvents.findEventById(id).then(event => {
-                const updateText
-                    = event.description
-                        ? `${event.description}\n\n${shareInfoText}`
-                        : shareInfoText;
-                const updateObject = {
-                    id: event.id,
-                    ...Platform.select({
-                        ios: {
-                            notes: updateText
-                        },
-                        android: {
-                            description: updateText
-                        }
-                    })
-                };
-
-                RNCalendarEvents.saveEvent(event.title, updateObject)
-                .then(resolve, reject);
-            }, reject);
-        }, reject);
+        // getShareInfoText(state, link, true).then(shareInfoText => {
+        //     RNCalendarEvents.findEventById(id).then(event => {
+        //         const updateText
+        //             = event.description
+        //                 ? `${event.description}\n\n${shareInfoText}`
+        //                 : shareInfoText;
+        //         const updateObject = {
+        //             id: event.id,
+        //             ...Platform.select({
+        //                 ios: {
+        //                     notes: updateText
+        //                 },
+        //                 android: {
+        //                     description: updateText
+        //                 }
+        //             })
+        //         };
+        //
+        //         RNCalendarEvents.saveEvent(event.title, updateObject)
+        //         .then(resolve, reject);
+        //     }, reject);
+        // }, reject);
     });
 }
 
@@ -103,13 +103,13 @@ export function _fetchCalendarEntries(
                 startDate.setDate(startDate.getDate() + FETCH_START_DAYS);
                 endDate.setDate(endDate.getDate() + FETCH_END_DAYS);
 
-                RNCalendarEvents.fetchAllEvents(
-                    startDate.getTime(),
-                    endDate.getTime(),
-                    [])
-                    .then(_updateCalendarEntries.bind(store))
-                    .catch(error =>
-                        logger.error('Error fetching calendar.', error));
+                // RNCalendarEvents.fetchAllEvents(
+                //     startDate.getTime(),
+                //     endDate.getTime(),
+                //     [])
+                //     .then(_updateCalendarEntries.bind(store))
+                //     .catch(error =>
+                //         logger.error('Error fetching calendar.', error));
             } else {
                 logger.warn('Calendar access not granted.');
             }
@@ -128,21 +128,21 @@ export function _fetchCalendarEntries(
  */
 function _ensureCalendarAccess(promptForPermission, dispatch) {
     return new Promise((resolve, reject) => {
-        RNCalendarEvents.authorizationStatus()
-            .then(status => {
-                if (status === 'authorized') {
-                    resolve(true);
-                } else if (promptForPermission) {
-                    RNCalendarEvents.authorizeEventStore()
-                        .then(result => {
-                            dispatch(setCalendarAuthorization(result));
-                            resolve(result === 'authorized');
-                        })
-                        .catch(reject);
-                } else {
-                    resolve(false);
-                }
-            })
-            .catch(reject);
+        // RNCalendarEvents.authorizationStatus()
+        //     .then(status => {
+        //         if (status === 'authorized') {
+        //             resolve(true);
+        //         } else if (promptForPermission) {
+        //             RNCalendarEvents.authorizeEventStore()
+        //                 .then(result => {
+        //                     dispatch(setCalendarAuthorization(result));
+        //                     resolve(result === 'authorized');
+        //                 })
+        //                 .catch(reject);
+        //         } else {
+        //             resolve(false);
+        //         }
+        //     })
+        //     .catch(reject);
     });
 }

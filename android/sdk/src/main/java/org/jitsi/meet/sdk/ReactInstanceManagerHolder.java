@@ -178,7 +178,6 @@ class ReactInstanceManagerHolder {
 
         List<ReactPackage> packages
             = new ArrayList<>(Arrays.asList(
-                new com.calendarevents.CalendarEventsPackage(),
                 new com.corbt.keepawake.KCKeepAwakePackage(),
                 new com.facebook.react.shell.MainReactPackage(),
                 new com.horcrux.svg.SvgPackage(),
