@@ -145,9 +145,9 @@ function Thumbnail(props: Props) {
             onLongPress = { _onThumbnailLongPress }
             style = { [
                 styles.thumbnail,
-                // participant.pinned && !tileView
-                //     ? _styles.thumbnailPinned : null,
-                // props.styleOverrides || null
+                participant.pinned && !tileView
+                    ? _styles.thumbnailPinned : null,
+                props.styleOverrides || null
             ] }
             touchFeedback = { false }>
 

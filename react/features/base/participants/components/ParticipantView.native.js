@@ -211,6 +211,7 @@ class ParticipantView extends Component<Props> {
 
         return (
             <Container
+            onClick ={onPress}
                 // onClick = { renderVideo || renderYoutubeLargeVideo ? undefined : onPress }
                 style = {{
                     ...styles.participantView,
@@ -233,9 +234,10 @@ class ParticipantView extends Component<Props> {
                         videoTrack = { videoTrack }
                         waitForVideoStarted = { false }
                         zOrder = { this.props.zOrder }
-                        zoomEnabled = { this.props.zoomEnabled } /> }
+                        zoomEnabled = { this.props.zoomEnabled } />
+                }
 
-                 { !renderYoutubeLargeVideo && !renderVideo
+                { !renderYoutubeLargeVideo && !renderVideo
                     && <View style = { styles.avatarContainer }>
                         <Avatar
                             participantId = { this.props.participantId }
@@ -243,12 +245,12 @@ class ParticipantView extends Component<Props> {
                     </View> }
     {/* } */}
 
-                { useTint
+                {/* { useTint
 
                     // If the connection has problems, tint the video / avatar.
                     && <TintedView
                         style = {
-                            connectionProblem ? undefined : tintStyle } /> }
+                            connectionProblem ? undefined : tintStyle } /> } */}
 
                 { this.props.useConnectivityInfoLabel
                     && this._renderConnectionInfo(connectionStatus) }

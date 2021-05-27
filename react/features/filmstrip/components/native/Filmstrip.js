@@ -92,7 +92,7 @@ class Filmstrip extends Component<Props> {
 
         return (
             <SafeAreaView style = { filmstripStyle }>
-                {/* {
+                {
                     this._separateLocalThumbnail
                         && !isNarrowAspectRatio
                         && <LocalThumbnail />
@@ -115,12 +115,12 @@ class Filmstrip extends Component<Props> {
                                     participant = { p } />))
 
                     }
-                    {
+                    {/* {
                         !this._separateLocalThumbnail && isNarrowAspectRatio
                             && <LocalThumbnail />
-                    }
+                    } */}
                 </ScrollView>
-                {
+                {/* {
                     this._separateLocalThumbnail && isNarrowAspectRatio
                         && <LocalThumbnail />
                 } */}

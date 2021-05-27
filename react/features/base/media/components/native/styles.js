@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
 /**
  * The styles of the feature base/media.
@@ -25,6 +25,6 @@ export default StyleSheet.create({
      * Make {@code Video} fill its container.
      */
     video: {
-        flex: 1
+        backgroundColor: '#000',
     }
 });
