@@ -98,6 +98,11 @@ export default class AbstractButton<P: Props, S: *> extends Component<P, S> {
     label: string;
 
     /**
+     * Button ID to use in E2E tests
+     */
+    testID: string;
+
+    /**
      * The label for this button, when toggled.
      */
     toggledLabel: string;
@@ -230,13 +235,14 @@ export default class AbstractButton<P: Props, S: *> extends Component<P, S> {
 
     /**
      * Helper function to be implemented by subclasses, which must return a
-     * {@code boolean} value indicating if this button is toggled or not.
+     * {@code boolean} value indicating if this button is toggled or not or
+     * undefined if the button is not toggleable.
      *
      * @protected
-     * @returns {boolean}
+     * @returns {?boolean}
      */
     _isToggled() {
-        return false;
+        return undefined;
     }
 
     _onClick: (*) => void;
@@ -270,6 +276,7 @@ export default class AbstractButton<P: Props, S: *> extends Component<P, S> {
             icon: this._getIcon(),
             label: this._getLabel(),
             styles: this._getStyles(),
+            testID: this.testID || '',
             toggled: this._isToggled(),
             tooltip: this._getTooltip()
         };

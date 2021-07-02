@@ -86,10 +86,3 @@
 
 # Rule to avoid build errors related to SVGs.
 -keep public class com.horcrux.svg.** {*;}
-
-# Hermes
--keep class com.facebook.hermes.unicode.** { *; }
-# React native Firebae
--keep class io.invertase.firebase.** { *; }
--dontwarn io.invertase.firebase.**
-

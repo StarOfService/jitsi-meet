@@ -1,14 +1,17 @@
 platform :ios, '11.0'
 workspace 'jitsi-meet'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
-
-target 'jitsi-meet' do
-  project 'app/app.xcodeproj'
-
-  pod 'Fabric', '~> 1.10.2'
-end
+install! 'cocoapods', :deterministic_uuids => false
 
 target 'JitsiMeet' do
+  project 'app/app.xcodeproj'
+
+  pod 'Firebase/Analytics', '~> 6.33.0'
+  pod 'Firebase/Crashlytics', '~> 6.33.0'
+  pod 'Firebase/DynamicLinks', '~> 6.33.0'
+end
+
+target 'JitsiMeetSDK' do
   project 'sdk/sdk.xcodeproj'
 
   # React Native and its dependencies
@@ -52,23 +55,22 @@ target 'JitsiMeet' do
   #
 
   pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
-  pod 'react-native-calendar-events', :path => '../node_modules/react-native-calendar-events'
   pod 'react-native-keep-awake', :path => '../node_modules/react-native-keep-awake'
   pod 'react-native-netinfo', :path => '../node_modules/@react-native-community/netinfo'
+  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
   pod 'react-native-webview', :path => '../node_modules/react-native-webview'
   pod 'react-native-webrtc', :path => '../node_modules/react-native-webrtc'
-  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
-  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
   pod 'RNGoogleSignin', :path => '../node_modules/@react-native-community/google-signin'
   pod 'RNSound', :path => '../node_modules/react-native-sound'
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
-  pod 'RNShare', :path => '../node_modules/react-native-share'
   pod 'RNWatch', :path => '../node_modules/react-native-watch-connectivity'
   pod 'RNDefaultPreference', :path => '../node_modules/react-native-default-preference'
 
   # Native pod dependencies
   #
-  pod 'Amplitude-iOS', '~> 4.0.4'
+
   pod 'CocoaLumberjack', '~>3.5.3'
   pod 'ObjectiveDropboxOfficial', '~> 3.9.4'
 
@@ -83,4 +85,21 @@ post_install do |installer|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
     end
   end
+  find_and_replace("../node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm",
+        "_initializeModules:(NSArray<id<RCTBridgeModule>> *)modules", "_initializeModules:(NSArray<Class> *)modules")
+      find_and_replace("../node_modules/react-native/ReactCommon/turbomodule/core/platform/ios/RCTTurboModuleManager.mm",
+         "RCTBridgeModuleNameForClass(module))", "RCTBridgeModuleNameForClass(Class(module)))")
+end
+
+def find_and_replace(dir, findstr, replacestr)
+  Dir[dir].each do |name|
+      text = File.read(name)
+      replace = text.gsub(findstr,replacestr)
+      if text != replace
+          puts "Fix: " + name
+          File.open(name, "w") { |file| file.puts replace }
+          STDOUT.flush
+      end
+  end
+  Dir[dir + '*/'].each(&method(:find_and_replace))
 end

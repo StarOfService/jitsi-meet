@@ -1,6 +1,6 @@
 // @flow
 
-import { IconMicDisabled, IconMicrophone } from '../../icons';
+import { IconMicSOS, IconMicOffSOS } from '../../icons';
 
 import AbstractButton from './AbstractButton';
 import type { Props } from './AbstractButton';
@@ -11,8 +11,9 @@ import type { Props } from './AbstractButton';
 export default class AbstractAudioMuteButton<P: Props, S: *>
     extends AbstractButton<P, S> {
 
-    icon = IconMicrophone;
-    toggledIcon = IconMicDisabled;
+    icon = IconMicSOS;
+    toggledIcon = IconMicOffSOS;
+    testID = "jitsi.toggle_audio"
 
     /**
      * Handles clicking / pressing the button, and toggles the audio mute state
@@ -52,7 +53,7 @@ export default class AbstractAudioMuteButton<P: Props, S: *>
      * Helper function to perform the actual setting of the audio mute / unmute
      * action.
      *
-     * @param {boolean} audioMuted - Whether video should be muted or not.
+     * @param {boolean} audioMuted - Whether audio should be muted or not.
      * @protected
      * @returns {void}
      */

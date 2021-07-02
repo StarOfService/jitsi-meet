@@ -1,23 +1,8 @@
 .prejoin {
-    &-full-page {
-        background: #1C2025;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        z-index: $toolbarZ + 1;
-    }
-
-    &-input-area-container {
-        position: absolute;
-        bottom: 48px;
-        width: 100%;
-        z-index: 2;
-    }
 
     &-input-area {
         margin: 0 auto;
         text-align: center;
-        width: 320px;
     }
 
     &-title {
@@ -25,48 +10,6 @@
         font-size: 24px;
         line-height: 32px;
         margin-bottom: 16px;
-    }
-
-    &-btn {
-        border-radius: 3px;
-        color: #fff;
-        cursor: pointer;
-        display: inline-block;
-        font-size: 15px;
-        line-height: 24px;
-        padding: 7px 16px;
-        position: relative;
-        text-align: center;
-        width: 286px;
-
-        &--primary {
-            background: #0376DA;
-            border: 1px solid #0376DA;
-        }
-
-        &--secondary {
-            background: #2A3A4B;
-            border: 1px solid #5E6D7A;
-        }
-
-        &--text {
-            width: auto;
-            font-size: 13px;
-            margin: 0;
-            padding: 0;
-        }
-    }
-
-    &-btn-options {
-        align-items: center;
-        border-left: 1px solid #fff;
-        display: flex;
-        height: 100%;
-        justify-content: center;
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: 40px;
     }
 
     &-text-btns {
@@ -92,14 +35,20 @@
     }
 
     &-checkbox-container {
-        align-items: center;
-        color: #fff;
-        display: none;
-        font-size: 13px;
-        justify-content: center;
-        line-height: 20px;
-        margin-top: 16px;
+        margin-bottom: 14px;
         width: 100%;
+    }
+
+    &-error {
+        color: white;
+        background-color: rgba(225, 45, 45, 0.6);
+        border-radius: 3px;
+        width: 100%;
+        padding: 2px;
+        box-sizing: border-box;
+        margin-top: 4px;
+        font-size: 13px;
+        text-align: center;
     }
 }
 
@@ -110,91 +59,9 @@
 }
 
 .prejoin-preview {
-    height: 100%;
-    position: absolute;
-    width: 100%;
-
-    &--no-video {
-        background: radial-gradient(50% 50% at 50% 50%, #5B6F80 0%, #365067 100%), #FFFFFF;
-        text-align: center;
-    }
-
-    &-video {
-        height: 100%;
-        object-fit: cover;
-        position: absolute;
-        width: 100%;
-    }
-
-    &-name {
-        color: #fff;
-        font-size: 19px;
-        line-height: 28px;
-
-        &--editable {
-            background: none;
-            border: 0;
-            border-bottom: 1px solid #D1DBE8;
-            margin: 24px 0 16px 0;
-            outline: none;
-            text-align: center;
-            width: 100%;
-
-            &::-webkit-input-placeholder {
-                @include name-placeholder;
-            }
-            &::-moz-placeholder {
-                @include name-placeholder;
-            }
-            &:-ms-input-placeholder {
-                @include name-placeholder;
-            }
-        }
-    }
-
-    &-avatar.avatar {
-        background: #A4B8D1;
-        margin: 200px auto 0 auto;
-    }
-
-    &-btn-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 32px;
-        width: 100%;
-
-        &> div {
-            margin: 0 12px;
-        }
-
-        .settings-button-small-icon {
-            right: -8px;
-
-            &--hovered {
-                right: -10px;
-            }
-        }
-    }
-
-    &-overlay {
-        height: 100%;
-        position: absolute;
-        width: 100%;
-        z-index: 1;
-        background: linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
-    }
-
-    &-bottom-overlay {
-        background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.9) 100%);
-        bottom: 0;
-        height: 50%;
-        position: absolute;
-        width: 100%;
-        z-index: 1;
-    }
-
     &-status {
         align-items: center;
+        align-self: stretch;
         bottom: 0;
         color: #fff;
         display: flex;
@@ -207,10 +74,10 @@
         z-index: 1;
 
         &--warning {
-            background: rgba(241, 173, 51, 0.5)
+            background: rgba(241, 173, 51, 0.7)
         }
         &--ok {
-            background: rgba(49, 183, 106, 0.5);
+            background: rgba(49, 183, 106, 0.7);
         }
     }
 
@@ -262,70 +129,10 @@
     }
 
     &-dropdown-container {
-        & > div > div:nth-child(2) > div > div {
+        & > div:nth-child(2) {
             background: #fff;
             padding: 0;
         }
     }
 
-}
-
-.prejoin-copy {
-    &-meeting {
-        cursor: pointer;
-        color: #fff;
-        font-size: 15px;
-        font-weight: 300;
-        line-height: 24px;
-        position: relative;
-    }
-
-    &-url {
-        max-width: 278px;
-        padding: 8px 10px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    &-badge {
-        border-radius: 4px;
-        height: 100%;
-        line-height: 38px;
-        position: absolute;
-        padding-left: 10px;
-        text-align: left;
-        top: 0;
-        width: 100%;
-
-        &--hover {
-            background: #1C2025;
-        }
-
-        &--done {
-            background: #31B76A;
-        }
-    }
-
-    &-icon {
-        position: absolute;
-        right: 8px;
-        top: 8px;
-
-       &--white {
-           &> svg > path {
-               fill: #fff
-           }
-       }
-
-       &--light {
-           &> svg > path {
-               fill: #D1DBE8;
-           }
-       }
-    }
-
-    &-textarea {
-        position: absolute;
-        left: -9999px;
-    }
 }

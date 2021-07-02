@@ -4,8 +4,8 @@ import React, { Component } from 'react';
 import type { Dispatch } from 'redux';
 
 import { trackVideoStarted } from '../../tracks';
-
 import { shouldRenderVideoTrack } from '../functions';
+
 import { Video } from './_';
 
 /**
@@ -45,7 +45,8 @@ export type Props = {
     /**
      * Indicates whether zooming (pinch to zoom and/or drag) is enabled.
      */
-    zoomEnabled?: boolean
+    zoomEnabled?: boolean,
+    video: any
 };
 
 /**
@@ -85,7 +86,7 @@ export default class AbstractVideoTrack<P: Props> extends Component<P> {
             if (shouldRenderVideoTrack(videoTrack, true)) {
                 // It appears that onPlaying has come for videoTrack already.
                 // Most probably, another render has already passed through the
-                // else clause bellow already.
+                // else clause below already.
                 render = true;
             } else if (shouldRenderVideoTrack(videoTrack, false)
                     && !videoTrack.videoStarted) {
@@ -110,15 +111,16 @@ export default class AbstractVideoTrack<P: Props> extends Component<P> {
                 && stream
                 && videoTrack
                 && videoTrack.videoType === 'desktop';
-
         return (
             <Video
+            isThumbnail={this.props.isThumbnail}
                 mirror = { videoTrack && videoTrack.mirror }
                 onPlaying = { this._onVideoPlaying }
                 onPress = { this.props.onPress }
                 stream = { stream }
                 zOrder = { this.props.zOrder }
-                zoomEnabled = { zoomEnabled } />
+                zoomEnabled = { zoomEnabled }
+                video={this.props.videoTrack}/>
         );
     }
 

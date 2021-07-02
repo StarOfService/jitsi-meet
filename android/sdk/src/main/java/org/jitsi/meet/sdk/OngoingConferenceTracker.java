@@ -21,7 +21,7 @@ import com.facebook.react.bridge.ReadableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-
+import android.util.Log;
 
 /**
  * Helper class to keep track of what the current conference is.
@@ -31,6 +31,7 @@ class OngoingConferenceTracker {
 
     private static final String CONFERENCE_WILL_JOIN = "CONFERENCE_WILL_JOIN";
     private static final String CONFERENCE_TERMINATED = "CONFERENCE_TERMINATED";
+    private static final String COLLAPSE_VIDEO = "COLLAPSE_VIDEO";
 
     private final Collection<OngoingConferenceListener> listeners =
         Collections.synchronizedSet(new HashSet<OngoingConferenceListener>());
@@ -53,14 +54,14 @@ class OngoingConferenceTracker {
     }
 
     synchronized void onExternalAPIEvent(String name, ReadableMap data) {
-        if (!data.hasKey("url")) {
-            return;
-        }
+        String url = "";
 
-        String url = data.getString("url");
-        if (url == null) {
-            return;
-        }
+        try {
+            url = data.getString("url");
+          }
+          catch(Exception e) {
+            System.out.println(e);
+          }
 
         switch(name) {
             case CONFERENCE_WILL_JOIN:
@@ -74,6 +75,10 @@ class OngoingConferenceTracker {
                     updateListeners();
                 }
                 break;
+
+            case COLLAPSE_VIDEO:
+                updateListeners();
+            break;
         }
     }
 

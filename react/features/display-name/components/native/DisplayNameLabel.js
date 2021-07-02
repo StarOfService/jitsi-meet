@@ -1,19 +1,21 @@
 // @flow
 
-import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import React, { Component } from "react";
+import { Text, View } from "react-native";
 
 import {
     getLocalParticipant,
+    getParticipantById,
     getParticipantDisplayName,
-    shouldRenderParticipantVideo
-} from '../../../base/participants';
-import { connect } from '../../../base/redux';
+    shouldRenderParticipantVideo,
+} from "../../../base/participants";
+import { connect } from "../../../base/redux";
 
-import styles from './styles';
+import styles from "./styles";
+
+import { Icon, IconMicWhiteSOS } from "../../../base/icons";
 
 type Props = {
-
     /**
      * The name of the participant to render.
      */
@@ -27,8 +29,8 @@ type Props = {
     /**
      * The ID of the participant to render the label for.
      */
-    participantId: string
-}
+    participantId: string,
+};
 
 /**
  * Renders a label with the display name of the on-stage participant.
@@ -45,10 +47,12 @@ class DisplayNameLabel extends Component<Props> {
         }
 
         return (
-            <View style = { styles.displayNameBackdrop }>
-                <Text style = { styles.displayNameText }>
-                    { this.props._participantName }
+            <View style={styles.displayNameBackdrop}>
+                <View style={styles.displayNameBackground} />
+                <Text style={styles.displayNameText}>
+                    {this.props._participantName}
                 </Text>
+                <Icon size={20} src={IconMicWhiteSOS} style={styles.image} />
             </View>
         );
     }
@@ -65,18 +69,21 @@ class DisplayNameLabel extends Component<Props> {
 function _mapStateToProps(state: Object, ownProps: Props) {
     const { participantId } = ownProps;
     const localParticipant = getLocalParticipant(state);
+    const participant = getParticipantById(state, participantId);
+    const isFakeParticipant = participant && participant.isFakeParticipant;
 
     // Currently we only render the display name if it's not the local
     // participant and there is no video rendered for
     // them.
-    const _render = Boolean(participantId)
-        && localParticipant.id !== participantId
-        && !shouldRenderParticipantVideo(state, participantId);
+    const _render =
+        Boolean(participantId) &&
+        localParticipant?.id !== participantId &&
+        !shouldRenderParticipantVideo(state, participantId) &&
+        !isFakeParticipant;
 
     return {
-        _participantName:
-            getParticipantDisplayName(state, participantId),
-        _render
+        _participantName: getParticipantDisplayName(state, participantId),
+        _render,
     };
 }
 

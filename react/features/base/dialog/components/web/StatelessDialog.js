@@ -1,13 +1,15 @@
 // @flow
 
-import Button, { ButtonGroup } from '@atlaskit/button';
+import ButtonGroup from '@atlaskit/button/button-group';
+import Button from '@atlaskit/button/standard-button';
 import Modal, { ModalFooter } from '@atlaskit/modal-dialog';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
 import { translate } from '../../../i18n/functions';
-
 import type { DialogProps } from '../../constants';
+
+import ModalHeader from './ModalHeader';
 
 /**
  * The ID to be used for the cancel button if enabled.
@@ -29,7 +31,15 @@ const OK_BUTTON_ID = 'modal-dialog-ok-button';
 type Props = {
     ...DialogProps,
 
-    i18n: Object,
+    /**
+     * Custom dialog header that replaces the standard heading.
+     */
+    customHeader?: React$Element<any> | Function,
+
+    /*
+     * True if listening for the Enter key should be disabled.
+     */
+    disableEnter: boolean,
 
     /**
      * Disables dismissing the dialog when the blanket is clicked. Enabled
@@ -44,6 +54,13 @@ type Props = {
     hideCancelButton: boolean,
 
     /**
+     * If true, no footer will be displayed.
+     */
+    disableFooter?: boolean,
+
+    i18n: Object,
+
+    /**
      * Whether the dialog is modal. This means clicking on the blanket will
      * leave the dialog open. No cancel button.
      */
@@ -55,7 +72,7 @@ type Props = {
     submitDisabled: boolean,
 
     /**
-     * Function to be used to retreive translated i18n labels.
+     * Function to be used to retrieve translated i18n labels.
      */
     t: Function,
 
@@ -106,6 +123,7 @@ class StatelessDialog extends Component<Props> {
      */
     render() {
         const {
+            customHeader,
             children,
             t /* The following fixes a flow error: */ = _.identity,
             titleString,
@@ -116,8 +134,14 @@ class StatelessDialog extends Component<Props> {
         return (
             <Modal
                 autoFocus = { true }
+                components = {{
+                    Header: customHeader ? customHeader : props => (
+                        <ModalHeader
+                            { ...props }
+                            heading = { titleString || t(titleKey) } />
+                    )
+                }}
                 footer = { this._renderFooter }
-                heading = { titleString || t(titleKey) }
                 i18n = { this.props.i18n }
                 onClose = { this._onDialogDismissed }
                 onDialogDismissed = { this._onDialogDismissed }
@@ -154,6 +178,10 @@ class StatelessDialog extends Component<Props> {
             this._renderOKButton(),
             this._renderCancelButton()
         ].filter(Boolean);
+
+        if (this.props.disableFooter) {
+            return null;
+        }
 
         return (
             <ModalFooter showKeyline = { propsFromModalFooter.showKeyline } >
@@ -305,7 +333,7 @@ class StatelessDialog extends Component<Props> {
             return;
         }
 
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && !this.props.disableEnter) {
             event.preventDefault();
             event.stopPropagation();
 

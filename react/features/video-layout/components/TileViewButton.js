@@ -6,17 +6,15 @@ import {
     createToolbarEvent,
     sendAnalytics
 } from '../../analytics';
+import { TILE_VIEW_ENABLED, getFeatureFlag } from '../../base/flags';
 import { translate } from '../../base/i18n';
 import { IconTileView } from '../../base/icons';
+import { getParticipantCount } from '../../base/participants';
 import { connect } from '../../base/redux';
-import {
-    AbstractButton,
-    type AbstractButtonProps
-} from '../../base/toolbox';
-
+import { AbstractButton, type AbstractButtonProps } from '../../base/toolbox/components';
 import { setTileView } from '../actions';
+import { shouldDisplayTileView } from '../functions';
 import logger from '../logger';
-import { TILE_VIEW_ENABLED, getFeatureFlag } from '../../base/flags';
 
 /**
  * The type of the React {@code Component} props of {@link TileViewButton}.
@@ -89,10 +87,11 @@ class TileViewButton<P: Props> extends AbstractButton<P, *> {
  */
 function _mapStateToProps(state, ownProps) {
     const enabled = getFeatureFlag(state, TILE_VIEW_ENABLED, true);
-    const { visible = enabled } = ownProps;
+    const lonelyMeeting = getParticipantCount(state) < 2;
+    const { visible = enabled && !lonelyMeeting } = ownProps;
 
     return {
-        _tileViewEnabled: state['features/video-layout'].tileViewEnabled,
+        _tileViewEnabled: shouldDisplayTileView(state),
         visible
     };
 }

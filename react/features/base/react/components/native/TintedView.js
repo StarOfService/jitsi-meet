@@ -54,7 +54,8 @@ export default class TintedView extends Component<Props> {
                     style = { [
                         BASE_STYLE,
                         TINTED_VIEW_DEFAULT,
-                        style
+                        style,
+                        {backgroundColor: 'transparent'}
                     ] } />
                 <View
                     pointerEvents = 'box-none'

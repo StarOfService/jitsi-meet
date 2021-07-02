@@ -98,6 +98,7 @@ function _set(
         property: string,
         value: any,
         copyOnWrite: boolean) {
+
     // Delete state properties that are to be set to undefined. (It is a matter
     // of personal preference, mostly.)
     if (typeof value === 'undefined'

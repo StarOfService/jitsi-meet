@@ -104,7 +104,7 @@
     },
     "deepLinking": {
         "downloadApp": "Last ned programmet",
-        "openApp": "Fortsett til programmet",
+        "openApp": "Fortsett til programmet"
     },
     "defaultLink": "f.eks.",
     "deviceError": {
@@ -664,9 +664,6 @@
         "lowDefinition": "",
         "onlyAudioAvailable": "",
         "onlyAudioSupported": "",
-        "p2pEnabled": "",
-        "p2pVideoQualityDescription": "",
-        "recHighDefinitionOnly": "",
         "sd": "",
         "standardDefinition": ""
     },

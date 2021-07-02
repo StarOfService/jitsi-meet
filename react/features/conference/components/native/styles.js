@@ -1,52 +1,41 @@
-import { BoxModel, ColorPalette, fixAndroidViewClipping } from '../../../base/styles';
 import { ColorSchemeRegistry, schemeColor } from '../../../base/color-scheme';
+import { BoxModel, ColorPalette, fixAndroidViewClipping } from '../../../base/styles';
 import { FILMSTRIP_SIZE } from '../../../filmstrip';
 
-export const NAVBAR_GRADIENT_COLORS = [ '#000000FF', '#00000000' ];
-
-// From brand guideline
-const BOTTOM_GRADIENT_HEIGHT = 290;
-const DEFAULT_GRADIENT_SIZE = 140;
+export const INSECURE_ROOM_NAME_LABEL_COLOR = ColorPalette.warning;
 
 /**
  * The styles of the feature conference.
  */
 export default {
-
-    bottomGradient: {
-        bottom: 0,
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        minHeight: DEFAULT_GRADIENT_SIZE,
-        left: 0,
-        position: 'absolute',
-        right: 0
+    cameraSwitchButton: {
+        alignItems: 'center',
+        height: 36,
+        justifyContent: 'center',
+        width: 36
     },
-
     /**
      * {@code Conference} style.
      */
     conference: fixAndroidViewClipping({
-        flex: 1,
-        overflow: 'hidden',
         alignSelf: 'stretch',
-        backgroundColor: ColorPalette.appBackground,
-    }),
-
-    gradient: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
+        backgroundColor: '#141C1E',
         flex: 1
+    }),
+    conferenceTimerContainer: {
+            alignSelf: "center",
+            marginBottom: 15,
+            marginTop: 20,
+    },
+    conferenceTimerText: {
+            color: "#FFF",
+            fontSize: 14,
+            fontWeight: "400",
+            lineHeight: 22,
     },
 
-    gradientStretchBottom: {
-        height: BOTTOM_GRADIENT_HEIGHT
-    },
-
-    gradientStretchTop: {
-        height: DEFAULT_GRADIENT_SIZE
+    displayNameContainer: {
+        margin: 10
     },
 
     /**
@@ -55,8 +44,7 @@ export default {
     indicatorContainer: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'flex-end',
-        margin: BoxModel.margin
+        justifyContent: 'flex-end'
     },
 
     /**
@@ -71,6 +59,13 @@ export default {
         position: 'absolute',
         right: 0,
         top: 0
+    },
+
+    localVideoContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        paddingTop: 16,
+        paddingRight: 16
     },
 
     lonelyButton: {
@@ -126,48 +121,50 @@ export default {
         flexDirection: 'row',
         height: 44,
         justifyContent: 'space-between',
-        marginTop: 30
+        paddingHorizontal: 14
     },
 
     roomTimer: {
         color: ColorPalette.white,
-        fontSize: 14,
-        lineHeight: 22,
+        fontSize: 12,
+        fontWeight: '400'
+    },
+
+    roomTimerView: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        borderBottomRightRadius: 3,
+        borderTopRightRadius: 3,
+        height: 28,
+        justifyContent: 'center',
+        paddingHorizontal: 10
     },
 
     roomName: {
         color: ColorPalette.white,
-        fontSize: 16,
-        fontWeight: 'bold',
-        textShadowColor: 'rgba(0,0,0,0.5)',
-        textShadowOffset: {
-            height: 0.5,
-            width: 0.5
-        },
-        textShadowRadius: 1
+        fontSize: 14,
+        fontWeight: '400'
+    },
+
+    roomNameView: {
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        borderBottomLeftRadius: 3,
+        borderTopLeftRadius: 3,
+        height: 28,
+        justifyContent: 'center',
+        paddingHorizontal: 10
+    },
+
+    roomNameContainer: {
+        alignItems: 'center',
+        left: 0,
+        paddingHorizontal: 48,
+        position: 'absolute',
+        right: 0
     },
 
     roomNameWrapper: {
-        flexDirection: 'column',
         alignItems: 'center',
-        left: 0,
-        paddingTop: 15,
-        position: 'absolute',
-        right: 0,
-        top: 10,
-
-    },
-
-    serviceName: {
-        color: ColorPalette.white,
-        fontSize: 14,
-        marginTop: 2,
-        textShadowColor: 'rgba(0,0,0,0.5)',
-        textShadowOffset: {
-            height: 0.5,
-            width: 0.5
-        },
-        textShadowRadius: 1
+        flexDirection: 'row'
     },
 
     /**
@@ -175,19 +172,41 @@ export default {
      * {@link Conference} area and splits it between the {@link Filmstrip} and
      * the {@link Toolbox}.
      */
-    toolboxAndFilmstripContainer: {
+    overlayContainer: {
+        // backgroundColor: '#141C1E',
         bottom: 0,
         flexDirection: 'column',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         left: 0,
-        paddingBottom: BoxModel.padding,
         position: 'absolute',
         right: 0,
+        top: 0
+    },
+    overlayEndCallButton: {
+        alignItems: 'center',
+        backgroundColor: '#F8644A',
+        borderRadius: 8,
+        flexDirection: 'row',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+    overlayEndCallButtonText: {
+        color: '#FFF',
+        fontSize: 14,
+        fontWeight: 'bold',
+        lineHeight: 22,
+        marginLeft: 8
+    },
+    overlayHeader: {
+        alignItems: 'center',
+        height: 70,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16
+    } ,
 
-        // Both on Android and iOS there is the status bar which may be visible.
-        // On iPhone X there is the notch. In the two cases BoxModel.margin is
-        // not enough.
-        top: BoxModel.margin * 3
+    insecureRoomNameLabel: {
+        backgroundColor: INSECURE_ROOM_NAME_LABEL_COLOR
     }
 };
 

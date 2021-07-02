@@ -1,21 +1,22 @@
 // @flow
 
 import React from 'react';
-import Transition from 'react-transition-group/Transition';
 
 import { translate } from '../../../base/i18n';
-import { Icon, IconClose } from '../../../base/icons';
 import { connect } from '../../../base/redux';
-
 import AbstractChat, {
-    _mapDispatchToProps,
     _mapStateToProps,
     type Props
 } from '../AbstractChat';
+
+import ChatDialog from './ChatDialog';
+import Header from './ChatDialogHeader';
 import ChatInput from './ChatInput';
 import DisplayNameForm from './DisplayNameForm';
+import KeyboardAvoider from './KeyboardAvoider';
 import MessageContainer from './MessageContainer';
 import MessageRecipient from './MessageRecipient';
+import TouchmoveHack from './TouchmoveHack';
 
 /**
  * React Component for holding the chat feature in a side panel that slides in
@@ -49,8 +50,6 @@ class Chat extends AbstractChat<Props> {
 
         // Bind event handlers so they are only bound once for every instance.
         this._renderPanelContent = this._renderPanelContent.bind(this);
-
-        // Bind event handlers so they are only bound once for every instance.
         this._onChatInputResize = this._onChatInputResize.bind(this);
     }
 
@@ -84,11 +83,9 @@ class Chat extends AbstractChat<Props> {
      */
     render() {
         return (
-            <Transition
-                in = { this.props._isOpen }
-                timeout = { 500 }>
-                { this._renderPanelContent }
-            </Transition>
+            <>
+                { this._renderPanelContent() }
+            </>
         );
     }
 
@@ -115,13 +112,16 @@ class Chat extends AbstractChat<Props> {
     _renderChat() {
         return (
             <>
-                <MessageContainer
-                    messages = { this.props._messages }
-                    ref = { this._messageContainerRef } />
+                <TouchmoveHack isModal = { this.props._isModal }>
+                    <MessageContainer
+                        messages = { this.props._messages }
+                        ref = { this._messageContainerRef } />
+                </TouchmoveHack>
                 <MessageRecipient />
                 <ChatInput
                     onResize = { this._onChatInputResize }
-                    onSend = { this.props._onSendMessage } />
+                    onSend = { this._onSendMessage } />
+                <KeyboardAvoider />
             </>
         );
     }
@@ -135,40 +135,38 @@ class Chat extends AbstractChat<Props> {
      */
     _renderChatHeader() {
         return (
-            <div className = 'chat-header'>
-                <div
-                    className = 'chat-close'
-                    onClick = { this.props._onToggleChat }>
-                    <Icon src = { IconClose } />
-                </div>
-            </div>
+            <Header className = 'chat-header' />
         );
     }
 
-    _renderPanelContent: (string) => React$Node | null;
+    _renderPanelContent: () => React$Node | null;
 
     /**
-     * Renders the contents of the chat panel, depending on the current
-     * animation state provided by {@code Transition}.
+     * Renders the contents of the chat panel.
      *
-     * @param {string} state - The current display transition state of the
-     * {@code Chat} component, as provided by {@code Transition}.
      * @private
      * @returns {ReactElement | null}
      */
-    _renderPanelContent(state) {
-        this._isExited = state === 'exited';
+    _renderPanelContent() {
+        const { _isModal, _isOpen, _showNamePrompt } = this.props;
+        let ComponentToRender = null;
 
-        const { _isOpen, _showNamePrompt } = this.props;
-        const ComponentToRender = !_isOpen && state === 'exited'
-            ? null
-            : (
-                <>
-                    { this._renderChatHeader() }
-                    { _showNamePrompt
-                        ? <DisplayNameForm /> : this._renderChat() }
-                </>
-            );
+        if (_isOpen) {
+            if (_isModal) {
+                ComponentToRender = (
+                    <ChatDialog>
+                        { _showNamePrompt ? <DisplayNameForm /> : this._renderChat() }
+                    </ChatDialog>
+                );
+            } else {
+                ComponentToRender = (
+                    <>
+                        { this._renderChatHeader() }
+                        { _showNamePrompt ? <DisplayNameForm /> : this._renderChat() }
+                    </>
+                );
+            }
+        }
         let className = '';
 
         if (_isOpen) {
@@ -199,6 +197,8 @@ class Chat extends AbstractChat<Props> {
             this._messageContainerRef.current.scrollToBottom(withAnimation);
         }
     }
+
+    _onSendMessage: (string) => void;
 }
 
-export default translate(connect(_mapStateToProps, _mapDispatchToProps)(Chat));
+export default translate(connect(_mapStateToProps)(Chat));

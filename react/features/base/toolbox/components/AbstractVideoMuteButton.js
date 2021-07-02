@@ -1,18 +1,20 @@
 // @flow
 
-import { IconCamera, IconCameraDisabled } from '../../icons';
+import { IconCameraOnSOS, IconCameraOffSOS } from "../../icons";
 
-import AbstractButton from './AbstractButton';
-import type { Props } from './AbstractButton';
+import AbstractButton from "./AbstractButton";
+import type { Props } from "./AbstractButton";
 
 /**
  * An abstract implementation of a button for toggling video mute.
  */
-export default class AbstractVideoMuteButton<P : Props, S : *>
-    extends AbstractButton<P, S> {
-
-    icon = IconCamera;
-    toggledIcon = IconCameraDisabled;
+export default class AbstractVideoMuteButton<
+    P: Props,
+    S: *
+> extends AbstractButton<P, S> {
+    icon = IconCameraOnSOS;
+    toggledIcon = IconCameraOffSOS;
+    testID = "jitsi.toggle_video";
 
     /**
      * Handles clicking / pressing the button, and toggles the video mute state
@@ -55,7 +57,8 @@ export default class AbstractVideoMuteButton<P : Props, S : *>
      * @protected
      * @returns {void}
      */
-    _setVideoMuted(videoMuted: boolean) { // eslint-disable-line no-unused-vars
+    _setVideoMuted(videoMuted: boolean) {
+        // eslint-disable-line no-unused-vars
         // To be implemented by subclass.
     }
 }

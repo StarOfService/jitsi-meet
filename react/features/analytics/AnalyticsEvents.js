@@ -185,7 +185,7 @@ export function createRecentClickedEvent(eventName, attributes = {}) {
 }
 
 /**
- * Creates an event which indicate an action occured in the chrome extension banner.
+ * Creates an event which indicate an action occurred in the chrome extension banner.
  *
  * @param {boolean} installPressed - Whether the user pressed install or `x` - cancel.
  * @param {Object} attributes - Attributes to attach to the event.
@@ -460,7 +460,7 @@ export function createLocalTracksDurationEvent(duration) {
 
 /**
  * Creates an event which indicates that an action related to recording has
- * occured.
+ * occurred.
  *
  * @param {string} action - The action (e.g. 'start' or 'stop').
  * @param {string} type - The recording type (e.g. 'file' or 'live').
@@ -504,15 +504,17 @@ export function createRejoinedEvent({ url, lastConferenceDuration, timeSinceLeft
  *
  * @param {string} participantId - The ID of the participant that was remotely
  * muted.
+ * @param {string} mediaType - The media type of the channel to mute.
  * @returns {Object} The event in a format suitable for sending via
  * sendAnalytics.
  */
-export function createRemoteMuteConfirmedEvent(participantId) {
+export function createRemoteMuteConfirmedEvent(participantId, mediaType) {
     return {
         action: 'clicked',
         actionSubject: 'remote.mute.dialog.confirm.button',
         attributes: {
-            'participant_id': participantId
+            'participant_id': participantId,
+            'media_type': mediaType
         },
         source: 'remote.mute.dialog',
         type: TYPE_UI
@@ -536,6 +538,26 @@ export function createRemoteVideoMenuButtonEvent(buttonName, attributes) {
         source: 'remote.video.menu',
         type: TYPE_UI
     };
+}
+
+/**
+ * The rtcstats websocket onclose event. We send this to amplitude in order
+ * to detect trace ws prematurely closing.
+ *
+ * @param {Object} closeEvent - The event with which the websocket closed.
+ * @returns {Object} The event in a format suitable for sending via
+ * sendAnalytics.
+ */
+export function createRTCStatsTraceCloseEvent(closeEvent) {
+    const event = {
+        action: 'trace.onclose',
+        source: 'rtcstats'
+    };
+
+    event.code = closeEvent.code;
+    event.reason = closeEvent.reason;
+
+    return event;
 }
 
 /**
@@ -565,6 +587,19 @@ export function createScreenSharingEvent(action) {
     return {
         action,
         actionSubject: 'screen.sharing'
+    };
+}
+
+/**
+ * Creates an event which indicates the screen sharing video is not displayed when it needs to be displayed.
+ *
+ * @param {Object} attributes - Additional information that describes the issue.
+ * @returns {Object} The event in a format suitable for sending via sendAnalytics.
+ */
+export function createScreenSharingIssueEvent(attributes) {
+    return {
+        action: 'screen.sharing.issue',
+        attributes
     };
 }
 
@@ -748,6 +783,22 @@ export function createTrackMutedEvent(mediaType, reason, muted = true) {
             'media_type': mediaType,
             muted,
             reason
+        }
+    };
+}
+
+/**
+ * Creates an event for joining a vpaas conference.
+ *
+ * @param {string} tenant - The conference tenant.
+ * @returns {Object} The event in a format suitable for sending via
+ * sendAnalytics.
+ */
+export function createVpaasConferenceJoinedEvent(tenant) {
+    return {
+        action: 'vpaas.conference.joined',
+        attributes: {
+            tenant
         }
     };
 }

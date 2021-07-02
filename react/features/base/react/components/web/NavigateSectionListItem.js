@@ -2,9 +2,10 @@
 
 import React, { Component } from 'react';
 
+import type { Item } from '../../Types';
+
 import Container from './Container';
 import Text from './Text';
-import type { Item } from '../../Types';
 
 /**
  * The type of the React {@code Component} props of
@@ -42,7 +43,7 @@ export default class NavigateSectionListItem<P: Props>
         const { onPress } = this.props;
 
         /**
-         * Initiliazes the date and duration of the conference to the an empty
+         * Initializes the date and duration of the conference to the an empty
          * string in case for some reason there is an error where the item data
          * lines doesn't contain one or both of those values (even though this
          * unlikely the app shouldn't break because of it)

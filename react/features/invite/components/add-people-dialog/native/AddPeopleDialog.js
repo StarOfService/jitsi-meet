@@ -31,9 +31,7 @@ import {
 } from '../../../../base/react';
 import { connect } from '../../../../base/redux';
 import { beginShareRoom } from '../../../../share-room';
-
 import { ADD_PEOPLE_DIALOG_VIEW_ID } from '../../../constants';
-
 import AbstractAddPeopleDialog, {
     type Props as AbstractProps,
     type State as AbstractState,
@@ -334,7 +332,7 @@ class AddPeopleDialog extends AbstractAddPeopleDialog<Props, State> {
     _onPressItem: Item => Function
 
     /**
-     * Function to preapre a callback for the onPress event of the touchable.
+     * Function to prepare a callback for the onPress event of the touchable.
      *
      * @param {Item} item - The item on which onPress was invoked.
      * @returns {Function}

@@ -10,9 +10,10 @@ import {
 } from '../participants';
 import { MiddlewareRegistry } from '../redux';
 
-import { setJWT } from './actions';
 import { SET_JWT } from './actionTypes';
+import { setJWT } from './actions';
 import { parseJWTFromURLParams } from './functions';
+import logger from './logger';
 
 declare var APP: Object;
 
@@ -28,10 +29,7 @@ MiddlewareRegistry.register(store => next => action => {
     case SET_CONFIG:
     case SET_LOCATION_URL:
         // XXX The JSON Web Token (JWT) is not the only piece of state that we
-        // have decided to store in the feature jwt, there is isGuest as well
-        // which depends on the states of the features base/config and jwt. So
-        // the JSON Web Token comes from the conference/room's URL and isGuest
-        // needs a recalculation upon SET_CONFIG as well.
+        // have decided to store in the feature jwt
         return _setConfigOrLocationURL(store, next, action);
 
     case SET_JWT:
@@ -127,13 +125,13 @@ function _setJWT(store, next, action) {
 
     if (!Object.keys(actionPayload).length) {
         if (jwt) {
-            const {
-                enableUserRolesBasedOnToken
-            } = store.getState()['features/base/config'];
+            let jwtPayload;
 
-            action.isGuest = !enableUserRolesBasedOnToken;
-
-            const jwtPayload = jwtDecode(jwt);
+            try {
+                jwtPayload = jwtDecode(jwt);
+            } catch (e) {
+                logger.error(e);
+            }
 
             if (jwtPayload) {
                 const { context, iss } = jwtPayload;
@@ -141,11 +139,12 @@ function _setJWT(store, next, action) {
                 action.jwt = jwt;
                 action.issuer = iss;
                 if (context) {
-                    const user = _user2participant(context.user);
+                    const user = _user2participant(context.user || {});
 
                     action.callee = context.callee;
                     action.group = context.group;
                     action.server = context.server;
+                    action.tenant = context.tenant;
                     action.user = user;
 
                     user && _overwriteLocalParticipant(

@@ -204,8 +204,13 @@ const SECTION_LIST_STYLES = {
 };
 
 export const TINTED_VIEW_DEFAULT = {
-    backgroundColor: ColorPalette.appBackground,
+    // backgroundColor: ColorPalette.appBackground,
     opacity: 0.8
+};
+
+export const BASE_INDICATOR = {
+    alignItems: 'center',
+    justifyContent: 'center'
 };
 
 /**

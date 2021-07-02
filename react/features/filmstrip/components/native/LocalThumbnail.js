@@ -6,8 +6,8 @@ import { View } from 'react-native';
 import { getLocalParticipant } from '../../../base/participants';
 import { connect } from '../../../base/redux';
 
-import styles from './styles';
 import Thumbnail from './Thumbnail';
+import styles from './styles';
 
 type Props = {
 
@@ -28,6 +28,7 @@ class LocalThumbnail extends Component<Props> {
      * @inheritdoc
      */
     render() {
+        // con
         const { _localParticipant } = this.props;
 
         return (

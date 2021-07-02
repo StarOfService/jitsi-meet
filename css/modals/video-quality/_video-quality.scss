@@ -1,9 +1,4 @@
 .video-quality-dialog {
-    .hide-warning {
-        height: 0;
-        visibility: hidden;
-    }
-
     .video-quality-dialog-title {
         margin-bottom: 10px;
     }
@@ -109,100 +104,10 @@
             word-spacing: unset;
         }
     }
-
-    &.video-not-supported {
-        .video-quality-dialog-labels {
-            color: gray;
-        }
-
-        .video-quality-dialog-slider {
-            @mixin sliderTrackDisabledStyles() {
-                background: rgba(14, 22, 36, 0.1);
-            }
-
-            &::-ms-track {
-                @include sliderTrackDisabledStyles();
-            }
-
-            &::-moz-range-track {
-                @include sliderTrackDisabledStyles();
-            }
-
-            &::-webkit-slider-runnable-track {
-                @include sliderTrackDisabledStyles();
-            }
-        }
-    }
 }
 
 .modal-dialog-form {
     .video-quality-dialog-title {
         display: none;
     }
-}
-
-#videoResolutionLabel {
-    z-index: $zindex3 + 1;
-}
-
-.large-video-labels {
-    display: flex;
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    transition: right 0.5s;
-    z-index: $zindex3;
-
-    .circular-label {
-        color: white;
-        font-weight: bold;
-        margin-left: 8px;
-        opacity: 0.8;
-    }
-
-    .circular-label {
-        background: #B8C7E0;
-    }
-
-    .circular-label.e2ee {
-        align-items: center;
-        background: #76CF9C;
-        display: flex;
-        justify-content: center;
-    }
-
-    .circular-label.file {
-        background: #FF5630;
-    }
-
-    .circular-label.local-rec {
-        background: #FF5630;
-    }
-
-    .circular-label.stream {
-        background: #0065FF;
-    }
-
-    .recording-label.center-message {
-        background: $videoStateIndicatorBackground;
-        bottom: 50%;
-        display: block;
-        left: 50%;
-        padding: 10px;
-        position: fixed;
-        transform: translate(-50%, -50%);
-        z-index: $centeredVideoLabelZ;
-    }
-}
-
-.circular-label {
-    background: $videoStateIndicatorBackground;
-    border-radius: 50%;
-    box-sizing: border-box;
-    cursor: default;
-    font-size: 13px;
-    height: $videoStateIndicatorSize;
-    line-height: $videoStateIndicatorSize;
-    text-align: center;
-    min-width: $videoStateIndicatorSize;
 }

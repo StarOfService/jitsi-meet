@@ -1,14 +1,14 @@
 // @flow
 
-import Share from 'react-native-share'
-import { getName } from '../app';
+import { Share } from 'react-native';
+
+import { getName } from '../app/functions';
 import { MiddlewareRegistry } from '../base/redux';
 import { getShareInfoText } from '../invite';
 
-import { endShareRoom } from './actions';
 import { BEGIN_SHARE_ROOM } from './actionTypes';
+import { endShareRoom } from './actions';
 import logger from './logger';
-import {sendEvent} from "../mobile/external-api";
 
 /**
  * Middleware that captures room URL sharing actions and starts the sharing
@@ -35,17 +35,14 @@ MiddlewareRegistry.register(store => next => action => {
  * @private
  * @returns {void}
  */
-const ON_INVITE_PEOPLE = "INVITE_PEOPLE"
-
-function _shareRoom(roomURL: string, store) {
-    const { dispatch, getState } = store
+function _shareRoom(roomURL: string, { dispatch, getState }) {
     getShareInfoText(getState(), roomURL)
         .then(message => {
             const title = `${getName()} Conference`;
             const onFulfilled
                 = (shared: boolean) => dispatch(endShareRoom(roomURL, shared));
 
-            Share.open(
+            Share.share(
                 /* content */ {
                     message,
                     title
@@ -56,19 +53,13 @@ function _shareRoom(roomURL: string, store) {
                 })
                 .then(
                     /* onFulfilled */ value => {
-                        sendEvent(store, ON_INVITE_PEOPLE, {});
                         onFulfilled(value.action === Share.sharedAction);
                     },
                     /* onRejected */ reason => {
-                        sendEvent(store, ON_INVITE_PEOPLE, {});
                         logger.error(
                             `Failed to share conference/room URL ${roomURL}:`,
                             reason);
                         onFulfilled(false);
-                    }).catch(() => {
-                sendEvent(store, ON_INVITE_PEOPLE, {});
-            }).catch(() => {
-                sendEvent(store, ON_INVITE_PEOPLE, {});
-            });
+                    });
         });
 }

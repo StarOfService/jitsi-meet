@@ -2,8 +2,9 @@
 
 import React, { Component } from 'react';
 
-import Container from './Container';
 import type { Section } from '../../Types';
+
+import Container from './Container';
 
 type Props = {
 
@@ -42,7 +43,7 @@ type Props = {
 /**
  * Implements a React/Web {@link Component} for displaying a list with
  * sections similar to React Native's {@code SectionList} in order to
- * faciliate cross-platform source code.
+ * facilitate cross-platform source code.
  *
  * @extends Component
  */

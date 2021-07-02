@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import { connect } from '../../../base/redux';
 import type { Dispatch } from 'redux';
 
 import { translate } from '../../../base/i18n';
@@ -9,8 +8,8 @@ import {
     getParticipantDisplayName,
     getParticipantById
 } from '../../../base/participants';
+import { connect } from '../../../base/redux';
 import { updateSettings } from '../../../base/settings';
-
 import { appendSuffix } from '../../functions';
 
 /**
@@ -198,7 +197,7 @@ class DisplayName extends Component<Props, State> {
     _onKeyDown: () => void;
 
     /**
-     * Submits the editted display name update if the enter key is pressed.
+     * Submits the edited display name update if the enter key is pressed.
      *
      * @param {Event} event - Key down event object.
      * @private

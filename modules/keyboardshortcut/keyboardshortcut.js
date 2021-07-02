@@ -1,17 +1,20 @@
-/* global APP, $, interfaceConfig */
+/* global APP, $ */
 
-import { toggleDialog } from '../../react/features/base/dialog';
+import Logger from 'jitsi-meet-logger';
+
 import {
     ACTION_SHORTCUT_PRESSED as PRESSED,
     ACTION_SHORTCUT_RELEASED as RELEASED,
     createShortcutEvent,
     sendAnalytics
 } from '../../react/features/analytics';
+import { toggleDialog } from '../../react/features/base/dialog';
+import { clickOnVideo } from '../../react/features/filmstrip/actions';
 import { KeyboardShortcutsDialog }
     from '../../react/features/keyboard-shortcuts';
 import { SpeakerStats } from '../../react/features/speaker-stats';
 
-const logger = require('jitsi-meet-logger').getLogger(__filename);
+const logger = Logger.getLogger(__filename);
 
 /**
  * Map of shortcuts. When a shortcut is registered it enters the mapping.
@@ -52,7 +55,7 @@ const KeyboardShortcut = {
                 if (_shortcuts.has(key)) {
                     _shortcuts.get(key).function(e);
                 } else if (!isNaN(num) && num >= 0 && num <= 9) {
-                    APP.UI.clickOnVideo(num);
+                    APP.store.dispatch(clickOnVideo(num));
                 }
 
             }
@@ -201,14 +204,12 @@ const KeyboardShortcut = {
         });
         this._addShortcutToHelp('SPACE', 'keyboardShortcuts.pushToTalk');
 
-        if (!interfaceConfig.filmStripOnly) {
-            this.registerShortcut('T', null, () => {
-                sendAnalytics(createShortcutEvent('speaker.stats'));
-                APP.store.dispatch(toggleDialog(SpeakerStats, {
-                    conference: APP.conference
-                }));
-            }, 'keyboardShortcuts.showSpeakerStats');
-        }
+        this.registerShortcut('T', null, () => {
+            sendAnalytics(createShortcutEvent('speaker.stats'));
+            APP.store.dispatch(toggleDialog(SpeakerStats, {
+                conference: APP.conference
+            }));
+        }, 'keyboardShortcuts.showSpeakerStats');
 
         /**
          * FIXME: Currently focus keys are directly implemented below in

@@ -1,12 +1,12 @@
 // @flow
 
-import React, { Component } from 'react';
-import { RTCView } from 'react-native-webrtc';
+import React, { Component } from "react";
+import { Dimensions, View } from "react-native";
+import { RTCView } from "react-native-webrtc";
 
-import { Pressable } from '../../../react';
+import { Pressable } from "../../../react";
 
-import styles from './styles';
-import VideoTransform from './VideoTransform';
+import styles from "./styles";
 
 /**
  * The type of the React {@code Component} props of {@link Video}.
@@ -37,8 +37,8 @@ type Props = {
      * thought of as giving a hint rather than as imposing a requirement.
      * For example, video renderers such as Video are commonly implemented
      * using OpenGL and OpenGL views may have different numbers of layers in
-     * their stacking space. Android has three: a layer bellow the window
-     * (aka default), a layer bellow the window again but above the previous
+     * their stacking space. Android has three: a layer below the window
+     * (aka default), a layer below the window again but above the previous
      * layer (aka media overlay), and above the window. Consequently, it is
      * advisable to limit the number of utilized layers in the stacking
      * space to the minimum sufficient for the desired display. For example,
@@ -51,7 +51,7 @@ type Props = {
     /**
      * Indicates whether zooming (pinch to zoom and/or drag) is enabled.
      */
-    zoomEnabled: boolean
+    zoomEnabled: boolean,
 };
 
 /**
@@ -81,37 +81,60 @@ export default class Video extends Component<Props> {
      */
     render() {
         const { onPress, stream, zoomEnabled } = this.props;
-
         if (stream) {
             // RTCView
             const style = styles.video;
-            const objectFit
-                = zoomEnabled
-                    ? 'contain'
-                    : (style && style.objectFit) || 'cover';
-            const rtcView
-                = (
-                    <RTCView
-                        mirror = { this.props.mirror }
-                        objectFit = { 'cover' }
-                        streamURL = { stream.toURL() }
-                        style = { style }
-                        zOrder = { this.props.zOrder } />
-                );
+            const objectFit = zoomEnabled
+                ? "contain"
+                : (style && style.objectFit) || "cover";
+            const { height, width } = Dimensions.get("window");
+            const videoDimensions =
+                this.props.video.jitsiTrack.conference?.connection.options
+                    .constraints.video;
+            const rtcView = (
+                <RTCView
+                    mirror={this.props.mirror}
+                    objectFit={objectFit}
+                    streamURL={stream.toURL()}
+                    style={[
+                        style,
+                        this.props.isThumbnail ? {
+                            height: 123,
+                            width: 92
+                        }:
+                        {
+                            maxHeight: Math.min(
+                                videoDimensions?.height.ideal || height,
+                                height,
+                                // 150
+                            ),
+                            maxWidth: Math.min(
+                                videoDimensions?.width.ideal || width,
+                                width,
+                                // 300
+                            ),
+                            minHeight: 144,
+                            minWidth: 244
+                        },
+                    ]}
+                    zOrder={this.props.zOrder}
+                    zoomEnabled={true}
+                />
+            );
 
             // VideoTransform implements "pinch to zoom". As part of "pinch to
             // zoom", it implements onPress, of course.
-            if (zoomEnabled) {
-                return (
-                    <VideoTransform
-                        enabled = { zoomEnabled }
-                        onPress = { onPress }
-                        streamId = { stream.id }
-                        style = { style }>
-                        { rtcView }
-                    </VideoTransform>
-                );
-            }
+            // if (zoomEnabled) {
+            //     return (
+            //         <VideoTransform
+            //             enabled = { zoomEnabled }
+            //             onPress = { onPress }
+            //             streamId = { stream.id }
+            //             style = { style }>
+            //             { rtcView }
+            //         </VideoTransform>
+            //     );
+            // }
 
             // XXX Unfortunately, VideoTransform implements a custom press
             // detection which has been observed to be very picky about the
@@ -119,11 +142,11 @@ export default class Video extends Component<Props> {
             // detection which is forgiving to imperceptible movements while
             // pressing. It's not acceptable to be so picky, especially when
             // "pinch to zoom" is not enabled.
-            return (
-                <Pressable onPress = { onPress }>
-                    { rtcView }
-                </Pressable>
-            );
+            return <Pressable onPress={onPress}><View style={{
+                flex: 1,
+                justifyContent: 'center',
+            }}>{
+                rtcView}</View></Pressable>;
         }
 
         // RTCView has peculiarities which may or may not be platform specific.

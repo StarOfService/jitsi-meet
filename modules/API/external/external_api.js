@@ -1,3 +1,4 @@
+import { jitsiLocalStorage } from '@jitsi/js-utils/jitsi-local-storage';
 import EventEmitter from 'events';
 
 import { urlObjectToString } from '../../../react/features/base/util/uri';
@@ -6,7 +7,6 @@ import {
     Transport
 } from '../../transport';
 
-import electronPopupsConfig from './electronPopupsConfig.json';
 import {
     getAvailableDevices,
     getCurrentDevices,
@@ -28,19 +28,31 @@ const ALWAYS_ON_TOP_FILENAMES = [
  */
 const commands = {
     avatarUrl: 'avatar-url',
+    cancelPrivateChat: 'cancel-private-chat',
     displayName: 'display-name',
     e2eeKey: 'e2ee-key',
     email: 'email',
+    toggleLobby: 'toggle-lobby',
     hangup: 'video-hangup',
+    intiatePrivateChat: 'initiate-private-chat',
+    kickParticipant: 'kick-participant',
+    muteEveryone: 'mute-everyone',
+    overwriteConfig: 'overwrite-config',
     password: 'password',
+    pinParticipant: 'pin-participant',
+    resizeLargeVideo: 'resize-large-video',
     sendEndpointTextMessage: 'send-endpoint-text-message',
     sendTones: 'send-tones',
+    setLargeVideoParticipant: 'set-large-video-participant',
     setVideoQuality: 'set-video-quality',
+    startRecording: 'start-recording',
+    stopRecording: 'stop-recording',
     subject: 'subject',
     submitFeedback: 'submit-feedback',
     toggleAudio: 'toggle-audio',
     toggleChat: 'toggle-chat',
     toggleFilmStrip: 'toggle-film-strip',
+    toggleRaiseHand: 'toggle-raise-hand',
     toggleShareScreen: 'toggle-share-screen',
     toggleTileView: 'toggle-tile-view',
     toggleVideo: 'toggle-video'
@@ -55,6 +67,8 @@ const events = {
     'audio-availability-changed': 'audioAvailabilityChanged',
     'audio-mute-status-changed': 'audioMuteStatusChanged',
     'camera-error': 'cameraError',
+    'chat-updated': 'chatUpdated',
+    'content-sharing-participants-changed': 'contentSharingParticipantsChanged',
     'device-list-changed': 'deviceListChanged',
     'display-name-change': 'displayNameChange',
     'email-change': 'emailChange',
@@ -63,6 +77,7 @@ const events = {
     'feedback-prompt-displayed': 'feedbackPromptDisplayed',
     'filmstrip-display-changed': 'filmstripDisplayChanged',
     'incoming-message': 'incomingMessage',
+    'log': 'log',
     'mic-error': 'micError',
     'outgoing-message': 'outgoingMessage',
     'participant-joined': 'participantJoined',
@@ -71,11 +86,13 @@ const events = {
     'participant-role-changed': 'participantRoleChanged',
     'password-required': 'passwordRequired',
     'proxy-connection-event': 'proxyConnectionEvent',
+    'raise-hand-updated': 'raiseHandUpdated',
     'video-ready-to-close': 'readyToClose',
     'video-conference-joined': 'videoConferenceJoined',
     'video-conference-left': 'videoConferenceLeft',
     'video-availability-changed': 'videoAvailabilityChanged',
     'video-mute-status-changed': 'videoMuteStatusChanged',
+    'video-quality-changed': 'videoQualityChanged',
     'screen-sharing-status-changed': 'screenSharingStatusChanged',
     'dominant-speaker-changed': 'dominantSpeakerChanged',
     'subject-change': 'subjectChange',
@@ -114,16 +131,13 @@ function changeParticipantNumber(APIInstance, number) {
  * configuration options defined in interface_config.js to be overridden.
  * @param {string} [options.jwt] - The JWT token if needed by jitsi-meet for
  * authentication.
- * @param {boolean} [options.noSSL] - If the value is true https won't be used.
  * @param {string} [options.roomName] - The name of the room to join.
  * @returns {string} The URL.
  */
 function generateURL(domain, options = {}) {
     return urlObjectToString({
         ...options,
-        url:
-            `${options.noSSL ? 'http' : 'https'}://${
-                domain}/#jitsi_meet_external_api_id=${id}`
+        url: `https://${domain}/#jitsi_meet_external_api_id=${id}`
     });
 }
 
@@ -154,7 +168,6 @@ function parseArguments(args) {
             parentNode,
             configOverwrite,
             interfaceConfigOverwrite,
-            noSSL,
             jwt,
             onload
         ] = args;
@@ -166,7 +179,6 @@ function parseArguments(args) {
             parentNode,
             configOverwrite,
             interfaceConfigOverwrite,
-            noSSL,
             jwt,
             onload
         };
@@ -186,7 +198,7 @@ function parseArguments(args) {
  * @param {any} value - The value to be parsed.
  * @returns {string|undefined} The parsed value that can be used for setting
  * sizes through the style property. If invalid value is passed the method
- * retuns undefined.
+ * returns undefined.
  */
 function parseSizeParam(value) {
     let parsedValue;
@@ -227,8 +239,6 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      * configuration options defined in config.js to be overridden.
      * @param {Object} [options.interfaceConfigOverwrite] - Object containing
      * configuration options defined in interface_config.js to be overridden.
-     * @param {boolean} [options.noSSL] - If the value is true https won't be
-     * used.
      * @param {string} [options.jwt] - The JWT token if needed by jitsi-meet for
      * authentication.
      * @param {string} [options.onload] - The onload function that will listen
@@ -251,7 +261,6 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
             parentNode = document.body,
             configOverwrite = {},
             interfaceConfigOverwrite = {},
-            noSSL = false,
             jwt = undefined,
             onload = undefined,
             invitees,
@@ -259,21 +268,25 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
             userInfo,
             e2eeKey
         } = parseArguments(args);
+        const localStorageContent = jitsiLocalStorage.getItem('jitsiLocalStorage');
 
         this._parentNode = parentNode;
         this._url = generateURL(domain, {
             configOverwrite,
             interfaceConfigOverwrite,
             jwt,
-            noSSL,
             roomName,
             devices,
-            userInfo
+            userInfo,
+            appData: {
+                localStorageContent
+            }
         });
         this._createIFrame(height, width, onload);
         this._transport = new Transport({
             backend: new PostMessageTransportBackend({
                 postisOptions: {
+                    allowedOrigin: new URL(this._url).origin,
                     scope: `jitsi_meet_external_api_${id}`,
                     window: this._frame.contentWindow
                 }
@@ -309,7 +322,7 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         const frameName = `jitsiConferenceFrame${id}`;
 
         this._frame = document.createElement('iframe');
-        this._frame.allow = 'camera; microphone; display-capture';
+        this._frame.allow = 'camera; microphone; display-capture; autoplay; clipboard-write';
         this._frame.src = this._url;
         this._frame.name = frameName;
         this._frame.id = frameName;
@@ -348,6 +361,19 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         return ALWAYS_ON_TOP_FILENAMES.map(
             filename => (new URL(filename, baseURL)).href
         );
+    }
+
+    /**
+     * Returns the formatted display name of a participant.
+     *
+     * @param {string} participantId - The id of the participant.
+     * @returns {string} The formatted display name.
+     */
+    _getFormattedDisplayName(participantId) {
+        const { formattedDisplayName }
+            = this._participants[participantId] || {};
+
+        return formattedDisplayName;
     }
 
     /**
@@ -416,10 +442,12 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         const parsedWidth = parseSizeParam(width);
 
         if (parsedHeight !== undefined) {
+            this._height = height;
             this._frame.style.height = parsedHeight;
         }
 
         if (parsedWidth !== undefined) {
+            this._width = width;
             this._frame.style.width = parsedWidth;
         }
     }
@@ -498,6 +526,14 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
                 changeParticipantNumber(this, -1);
                 delete this._participants[this._myUserID];
                 break;
+            case 'video-quality-changed':
+                this._videoQuality = data.videoQuality;
+                break;
+            case 'local-storage-changed':
+                jitsiLocalStorage.setItem('jitsiLocalStorage', data.localStorageContent);
+
+                // Since this is internal event we don't need to emit it to the consumer of the API.
+                return true;
             }
 
             const eventName = events[name];
@@ -533,6 +569,19 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      * the event and value - the listener.
      * Currently we support the following
      * events:
+     * {@code log} - receives event notifications whenever information has
+     * been logged and has a log level specified within {@code config.apiLogLevels}.
+     * The listener will receive object with the following structure:
+     * {{
+     * logLevel: the message log level
+     * arguments: an array of strings that compose the actual log message
+     * }}
+     * {@code chatUpdated} - receives event notifications about chat state being
+     * updated. The listener will receive object with the following structure:
+     * {{
+     *  'unreadCount': unreadCounter, // the unread message(s) counter,
+     *  'isOpen': isOpen, // whether the chat panel is open or not
+     * }}
      * {@code incomingMessage} - receives event notifications about incoming
      * messages. The listener will receive object with the following structure:
      * {{
@@ -600,6 +649,18 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         for (const event in listeners) { // eslint-disable-line guard-for-in
             this.addEventListener(event, listeners[event]);
         }
+    }
+
+    /**
+     * Captures the screenshot of the large video.
+     *
+     * @returns {Promise<string>} - Resolves with a base64 encoded image data of the screenshot
+     * if large video is detected, an error otherwise.
+     */
+    captureLargeVideoScreenshot() {
+        return this._transport.sendRequest({
+            name: 'capture-largevideo-screenshot'
+        });
     }
 
     /**
@@ -676,12 +737,61 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
+     * Gets a list of the currently sharing participant id's.
+     *
+     * @returns {Promise} - Resolves with the list of participant id's currently sharing.
+     */
+    getContentSharingParticipants() {
+        return this._transport.sendRequest({
+            name: 'get-content-sharing-participants'
+        });
+    }
+
+    /**
      * Returns Promise that resolves with current selected devices.
      *
      * @returns {Promise}
      */
     getCurrentDevices() {
         return getCurrentDevices(this._transport);
+    }
+
+    /**
+     * Returns the current livestream url.
+     *
+     * @returns {Promise} - Resolves with the current livestream URL if exists, with
+     * undefined if not and rejects on failure.
+     */
+    getLivestreamUrl() {
+        return this._transport.sendRequest({
+            name: 'get-livestream-url'
+        });
+    }
+
+    /**
+     * Returns the conference participants information.
+     *
+     * @returns {Array<Object>} - Returns an array containing participants
+     * information like participant id, display name, avatar URL and email.
+     */
+    getParticipantsInfo() {
+        const participantIds = Object.keys(this._participants);
+        const participantsInfo = Object.values(this._participants);
+
+        participantsInfo.forEach((participant, idx) => {
+            participant.participantId = participantIds[idx];
+        });
+
+        return participantsInfo;
+    }
+
+    /**
+     * Returns the current video quality setting.
+     *
+     * @returns {number}
+     */
+    getVideoQuality() {
+        return this._videoQuality;
     }
 
     /**
@@ -758,6 +868,17 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
+     * Returns screen sharing status.
+     *
+     * @returns {Promise} - Resolves with screensharing status and rejects on failure.
+     */
+    isSharingScreen() {
+        return this._transport.sendRequest({
+            name: 'is-sharing-screen'
+        });
+    }
+
+    /**
      * Returns the avatar URL of a participant.
      *
      * @param {string} participantId - The id of the participant.
@@ -791,19 +912,6 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
         const { email } = this._participants[participantId] || {};
 
         return email;
-    }
-
-    /**
-     * Returns the formatted display name of a participant.
-     *
-     * @param {string} participantId - The id of the participant.
-     * @returns {string} The formatted display name.
-     */
-    _getFormattedDisplayName(participantId) {
-        const { formattedDisplayName }
-            = this._participants[participantId] || {};
-
-        return formattedDisplayName;
     }
 
     /**
@@ -850,6 +958,17 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
+     * Pins a participant's video on to the stage view.
+     *
+     * @param {string} participantId - Participant id (JID) of the participant
+     * that needs to be pinned on the stage view.
+     * @returns {void}
+     */
+    pinParticipant(participantId) {
+        this.executeCommand('pinParticipant', participantId);
+    }
+
+    /**
      * Removes event listener.
      *
      * @param {string} event - The name of the event.
@@ -873,6 +992,19 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
      */
     removeEventListeners(eventList) {
         eventList.forEach(event => this.removeEventListener(event));
+    }
+
+    /**
+     * Resizes the large video container as per the dimensions provided.
+     *
+     * @param {number} width - Width that needs to be applied on the large video container.
+     * @param {number} height - Height that needs to be applied on the large video container.
+     * @returns {void}
+     */
+    resizeLargeVideo(width, height) {
+        if (width <= this._width && height <= this._height) {
+            this.executeCommand('resizeLargeVideo', width, height);
+        }
     }
 
     /**
@@ -919,6 +1051,18 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
+     * Displays the given participant on the large video. If no participant id is specified,
+     * dominant and pinned speakers will be taken into consideration while selecting the
+     * the large video participant.
+     *
+     * @param {string} participantId - Jid of the participant to be displayed on the large video.
+     * @returns {void}
+     */
+    setLargeVideoParticipant(participantId) {
+        this.executeCommand('setLargeVideoParticipant', participantId);
+    }
+
+    /**
      * Sets the video input device to the one with the label or id that is
      * passed.
      *
@@ -931,14 +1075,35 @@ export default class JitsiMeetExternalAPI extends EventEmitter {
     }
 
     /**
-     * Returns the configuration for electron for the windows that are open
-     * from Jitsi Meet.
+     * Starts a file recording or streaming session depending on the passed on params.
+     * For RTMP streams, `rtmpStreamKey` must be passed on. `rtmpBroadcastID` is optional.
+     * For youtube streams, `youtubeStreamKey` must be passed on. `youtubeBroadcastID` is optional.
+     * For dropbox recording, recording `mode` should be `file` and a dropbox oauth2 token must be provided.
+     * For file recording, recording `mode` should be `file` and optionally `shouldShare` could be passed on.
+     * No other params should be passed.
      *
-     * @returns {Promise<Object>}
-     *
-     * NOTE: For internal use only.
+     * @param {Object} options - An object with config options to pass along.
+     * @param { string } options.mode - Recording mode, either `file` or `stream`.
+     * @param { string } options.dropboxToken - Dropbox oauth2 token.
+     * @param { boolean } options.shouldShare - Whether the recording should be shared with the participants or not.
+     * Only applies to certain jitsi meet deploys.
+     * @param { string } options.rtmpStreamKey - The RTMP stream key.
+     * @param { string } options.rtmpBroadcastID - The RTMP broacast ID.
+     * @param { string } options.youtubeStreamKey - The youtube stream key.
+     * @param { string } options.youtubeBroadcastID - The youtube broacast ID.
+     * @returns {void}
      */
-    _getElectronPopupsConfig() {
-        return Promise.resolve(electronPopupsConfig);
+    startRecording(options) {
+        this.executeCommand('startRecording', options);
+    }
+
+    /**
+     * Stops a recording or streaming session that is in progress.
+     *
+     * @param {string} mode - `file` or `stream`.
+     * @returns {void}
+     */
+    stopRecording(mode) {
+        this.executeCommand('startRecording', mode);
     }
 }

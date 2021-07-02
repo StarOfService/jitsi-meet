@@ -6,18 +6,14 @@ import {
     createShortcutEvent,
     sendAnalytics
 } from '../../analytics';
+import { getFeatureFlag, AUDIO_MUTE_BUTTON_ENABLED } from '../../base/flags';
 import { translate } from '../../base/i18n';
 import { MEDIA_TYPE } from '../../base/media';
 import { connect } from '../../base/redux';
-import { AbstractAudioMuteButton } from '../../base/toolbox';
-import type { AbstractButtonProps } from '../../base/toolbox';
+import { AbstractAudioMuteButton } from '../../base/toolbox/components';
+import type { AbstractButtonProps } from '../../base/toolbox/components';
 import { isLocalTrackMuted } from '../../base/tracks';
-import {
-    isPrejoinAudioMuted,
-    isAudioDisabled,
-    isPrejoinPageVisible
-} from '../../prejoin/functions';
-import { muteLocal } from '../../remote-video-menu/actions';
+import { muteLocal } from '../../video-menu/actions';
 
 declare var APP: Object;
 
@@ -92,7 +88,7 @@ class AudioMuteButton extends AbstractAudioMuteButton<Props, *> {
     }
 
     /**
-     * Indicates if audio is currently muted ot nor.
+     * Indicates if audio is currently muted or not.
      *
      * @override
      * @protected
@@ -129,7 +125,7 @@ class AudioMuteButton extends AbstractAudioMuteButton<Props, *> {
      * @returns {void}
      */
     _setAudioMuted(audioMuted: boolean) {
-        this.props.dispatch(muteLocal(audioMuted));
+        this.props.dispatch(muteLocal(audioMuted, MEDIA_TYPE.AUDIO));
     }
 
     /**
@@ -154,22 +150,14 @@ class AudioMuteButton extends AbstractAudioMuteButton<Props, *> {
  * }}
  */
 function _mapStateToProps(state): Object {
-    let _audioMuted;
-    let _disabled;
-
-    if (isPrejoinPageVisible(state)) {
-        _audioMuted = isPrejoinAudioMuted(state);
-        _disabled = state['features/base/config'].startSilent;
-    } else {
-        const tracks = state['features/base/tracks'];
-
-        _audioMuted = isLocalTrackMuted(tracks, MEDIA_TYPE.AUDIO);
-        _disabled = state['features/base/config'].startSilent || isAudioDisabled(state);
-    }
+    const _audioMuted = isLocalTrackMuted(state['features/base/tracks'], MEDIA_TYPE.AUDIO);
+    const _disabled = state['features/base/config'].startSilent;
+    const enabledFlag = getFeatureFlag(state, AUDIO_MUTE_BUTTON_ENABLED, true);
 
     return {
         _audioMuted,
-        _disabled
+        _disabled,
+        visible: enabledFlag
     };
 }
 

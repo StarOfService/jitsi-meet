@@ -41,7 +41,6 @@ export default {
      */
     participantView: {
         alignItems: 'stretch',
-        flex: 1,
-        justifyContent: 'center'
+        justifyContent: 'center',
     }
 };

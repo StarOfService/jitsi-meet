@@ -1,6 +1,6 @@
 // @flow
 
-import { jitsiLocalStorage } from 'js-utils';
+import { jitsiLocalStorage } from '@jitsi/js-utils';
 import React, { PureComponent } from 'react';
 
 import {
@@ -8,15 +8,15 @@ import {
     sendAnalytics
 } from '../../analytics';
 import { getCurrentConference } from '../../base/conference/functions';
-import { Icon, IconClose } from '../../base/icons';
-import { translate } from '../../base/i18n';
-import { browser } from '../../base/lib-jitsi-meet';
-import { connect } from '../../base/redux';
 import {
     checkChromeExtensionsInstalled,
     isMobileBrowser
 } from '../../base/environment/utils';
-
+import { translate } from '../../base/i18n';
+import { Icon, IconClose } from '../../base/icons';
+import { browser } from '../../base/lib-jitsi-meet';
+import { connect } from '../../base/redux';
+import { isVpaasMeeting } from '../../billing-counter/functions';
 import logger from '../logger';
 
 
@@ -50,6 +50,11 @@ type Props = {
      * Whether I am the current recorder.
      */
     iAmRecorder: boolean,
+
+    /**
+     * Whether it's a vpaas meeting or not.
+     */
+    isVpaas: boolean,
 
     /**
      * Invoked to obtain translated strings.
@@ -147,7 +152,9 @@ class ChromeExtensionBanner extends PureComponent<Props, State> {
     _isSupportedEnvironment() {
         return interfaceConfig.SHOW_CHROME_EXTENSION_BANNER
             && browser.isChrome()
-            && !isMobileBrowser();
+            && !browser.isTwa()
+            && !isMobileBrowser()
+            && !this.props.isVpaas;
     }
 
     _onClosePressed: () => void;
@@ -281,7 +288,8 @@ const _mapStateToProps = state => {
         // Using emptyObject so that we don't change the reference every time when _mapStateToProps is called.
         bannerCfg: state['features/base/config'].chromeExtensionBanner || emptyObject,
         conference: getCurrentConference(state),
-        iAmRecorder: state['features/base/config'].iAmRecorder
+        iAmRecorder: state['features/base/config'].iAmRecorder,
+        isVpaas: isVpaasMeeting(state)
     };
 };
 
