@@ -12,6 +12,7 @@ export default class AbstractHangupButton<P : Props, S: *>
     extends AbstractButton<P, S> {
 
     icon = IconHangup;
+    testID = "jitsi.end_call"
 
     /**
      * Handles clicking / pressing the button, and disconnects the conference.

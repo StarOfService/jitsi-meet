@@ -80,6 +80,7 @@ export default class ToolboxItem extends AbstractToolboxItem<Props> {
                 disabled = { disabled }
                 onPress = { onClick }
                 style = { style }
+                testID={this.props.testID}
                 underlayColor = { styles && styles.underlayColor } >
                 { children }
             </TouchableOpacity>

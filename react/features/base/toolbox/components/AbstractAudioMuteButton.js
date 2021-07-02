@@ -13,6 +13,7 @@ export default class AbstractAudioMuteButton<P: Props, S: *>
 
     icon = IconMicSOS;
     toggledIcon = IconMicOffSOS;
+    testID = "jitsi.toggle_audio"
 
     /**
      * Handles clicking / pressing the button, and toggles the audio mute state

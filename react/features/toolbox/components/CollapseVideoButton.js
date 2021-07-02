@@ -16,6 +16,7 @@ class CollapseVideoButton extends AbstractButton<Props, *> {
     icon = IconCollapseVideoSOS;
     label = "toolbar.collapseVideo";
     toggledIcon = IconExpandVideoSOS;
+    testID = "jitsi.collapse_video"
 
     /**
      * Handles clicking / pressing the button, and opens a confirmation dialog.

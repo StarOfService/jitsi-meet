@@ -166,7 +166,7 @@ class Conference extends AbstractConference<Props, *> {
      */
     render() {
         // const { _fullscreenEnabled } = this.props;
-        const _fullscreenEnabled = false
+        const _fullscreenEnabled = false;
 
         return (
             <Container style={styles.conference}>
@@ -194,7 +194,7 @@ class Conference extends AbstractConference<Props, *> {
      * @returns {void}
      */
     _onClick() {
-        const isVisible = !this.props._toolboxVisible
+        const isVisible = !this.props._toolboxVisible;
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         this._setToolboxVisible(isVisible);
     }
@@ -240,16 +240,20 @@ class Conference extends AbstractConference<Props, *> {
             <SafeAreaView>
                 <View style={styles.overlayHeader}>
                     <TouchableOpacity
+                        accessible
                         activeOpacity={0.8}
                         onPress={onSwitchCamera}
                         style={styles.cameraSwitchButton}
+                        testID={"jitsi.toggle_camera"}
                     >
                         <Icon size="24" src={IconSwitchCameraSOS} />
                     </TouchableOpacity>
                     <TouchableOpacity
+                        accessible
                         activeOpacity={0.8}
                         onPress={onEndCall}
                         style={styles.overlayEndCallButton}
+                        testID={"jitsi.end_call"}
                     >
                         <Icon size="16" src={IconEndCallSOS} />
                         <Text style={styles.overlayEndCallButtonText}>
@@ -318,7 +322,7 @@ class Conference extends AbstractConference<Props, *> {
         }
 
         return (
-            <>
+            <View accessible flex={1} testID={"jitsi.video_call_screen"}>
                 {
                     /*
                      * The LargeVideo is the lowermost stacking layer.
@@ -365,13 +369,11 @@ class Conference extends AbstractConference<Props, *> {
                             // </SafeAreaView>
                         }
                         {!isAloneInRoom && (
-                        <SafeAreaView>
-
+                            <SafeAreaView>
                                 <View style={styles.localVideoContainer}>
                                     <LocalThumbnail />
                                 </View>
-
-                        </SafeAreaView>
+                            </SafeAreaView>
                         )}
                         {/* <Filmstrip /> */}
                     </View>
@@ -406,7 +408,7 @@ class Conference extends AbstractConference<Props, *> {
                 {this._renderConferenceNotification()}
 
                 {this._renderConferenceModals()}
-            </>
+            </View>
         );
     }
 
@@ -548,9 +550,8 @@ class Conference extends AbstractConference<Props, *> {
  */
 function _mapStateToProps(state) {
     const { connecting, connection } = state["features/base/connection"];
-    const { conference, joining, membersOnly, leaving } = state[
-        "features/base/conference"
-    ];
+    const { conference, joining, membersOnly, leaving } =
+        state["features/base/conference"];
     const { aspectRatio, reducedUI } = state["features/base/responsive-ui"];
     const participants = state["features/base/participants"];
 

@@ -98,6 +98,11 @@ export default class AbstractButton<P: Props, S: *> extends Component<P, S> {
     label: string;
 
     /**
+     * Button ID to use in E2E tests
+     */
+    testID: string;
+
+    /**
      * The label for this button, when toggled.
      */
     toggledLabel: string;
@@ -271,6 +276,7 @@ export default class AbstractButton<P: Props, S: *> extends Component<P, S> {
             icon: this._getIcon(),
             label: this._getLabel(),
             styles: this._getStyles(),
+            testID: this.testID || '',
             toggled: this._isToggled(),
             tooltip: this._getTooltip()
         };

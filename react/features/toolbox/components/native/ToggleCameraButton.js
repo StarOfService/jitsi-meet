@@ -1,17 +1,19 @@
 // @flow
 
-import { translate } from '../../../base/i18n';
-import { IconSwitchCamera } from '../../../base/icons';
-import { MEDIA_TYPE, toggleCameraFacingMode } from '../../../base/media';
-import { connect } from '../../../base/redux';
-import { AbstractButton, type AbstractButtonProps } from '../../../base/toolbox/components';
-import { isLocalTrackMuted } from '../../../base/tracks';
+import { translate } from "../../../base/i18n";
+import { IconSwitchCamera } from "../../../base/icons";
+import { MEDIA_TYPE, toggleCameraFacingMode } from "../../../base/media";
+import { connect } from "../../../base/redux";
+import {
+    AbstractButton,
+    type AbstractButtonProps,
+} from "../../../base/toolbox/components";
+import { isLocalTrackMuted } from "../../../base/tracks";
 
 /**
  * The type of the React {@code Component} props of {@link ToggleCameraButton}.
  */
 type Props = AbstractButtonProps & {
-
     /**
      * Whether the current conference is in audio only mode or not.
      */
@@ -25,16 +27,17 @@ type Props = AbstractButtonProps & {
     /**
      * The redux {@code dispatch} function.
      */
-    dispatch: Function
+    dispatch: Function,
 };
 
 /**
  * An implementation of a button for toggling the camera facing mode.
  */
 class ToggleCameraButton extends AbstractButton<Props, *> {
-    accessibilityLabel = 'toolbar.accessibilityLabel.toggleCamera';
+    accessibilityLabel = "toolbar.accessibilityLabel.toggleCamera";
     icon = IconSwitchCamera;
-    label = 'toolbar.toggleCamera';
+    label = "toolbar.toggleCamera";
+    testID = "jitsi.toggle_camera";
 
     /**
      * Handles clicking / pressing the button.
@@ -71,12 +74,12 @@ class ToggleCameraButton extends AbstractButton<Props, *> {
  * }}
  */
 function _mapStateToProps(state): Object {
-    const { enabled: audioOnly } = state['features/base/audio-only'];
-    const tracks = state['features/base/tracks'];
+    const { enabled: audioOnly } = state["features/base/audio-only"];
+    const tracks = state["features/base/tracks"];
 
     return {
         _audioOnly: Boolean(audioOnly),
-        _videoMuted: isLocalTrackMuted(tracks, MEDIA_TYPE.VIDEO)
+        _videoMuted: isLocalTrackMuted(tracks, MEDIA_TYPE.VIDEO),
     };
 }
 
